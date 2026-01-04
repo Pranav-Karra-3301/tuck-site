@@ -3,6 +3,10 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --envelope-width: 280px;
+  --envelope-height: 180px;
+  --letter-width: 220px;
+  --letter-height: 300px;
 }
 
 @theme inline {
@@ -12,15 +16,348 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
+  background: #000;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ========================================
+   ENVELOPE ANIMATION STYLES
+   ======================================== */
+
+.envelope-container {
+  position: relative;
+  width: 100%;
+}
+
+.envelope-viewport {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  perspective: 1200px;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.envelope-viewport.complete {
+  pointer-events: none;
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  animation: fadeInUp 1s ease 1.5s forwards;
+  opacity: 0;
+}
+
+.scroll-indicator-mouse {
+  width: 26px;
+  height: 42px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 13px;
+  position: relative;
+}
+
+.scroll-indicator-wheel {
+  width: 4px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 2px;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: scrollWheel 1.5s ease-in-out infinite;
+}
+
+@keyframes scrollWheel {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Scroll spacer to enable scrolling */
+.scroll-spacer {
+  height: 400vh;
+  pointer-events: none;
+}
+
+/* ========================================
+   ENVELOPE STRUCTURE
+   ======================================== */
+
+.envelope {
+  position: absolute;
+  width: var(--envelope-width);
+  height: var(--envelope-height);
+  transform-style: preserve-3d;
+  z-index: 20;
+  will-change: transform, opacity;
+}
+
+/* Envelope back panel */
+.envelope-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #e5e5e5;
+  border-radius: 6px;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Envelope front body (covers bottom portion) */
+.envelope-body {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 65%;
+  background: linear-gradient(180deg, #f2f2f2 0%, #e8e8e8 100%);
+  border-radius: 0 0 6px 6px;
+  z-index: 25;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Inner shadow/fold effect on body */
+.envelope-body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), transparent);
+}
+
+/* ========================================
+   ENVELOPE FLAP
+   ======================================== */
+
+.envelope-flap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 55%;
+  transform-origin: top center;
+  transform-style: preserve-3d;
+  z-index: 30;
+  will-change: transform;
+}
+
+/* Front of flap (visible when closed) */
+.envelope-flap-front {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%);
+  clip-path: polygon(0 0, 50% 100%, 100% 0);
+  backface-visibility: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Back of flap (visible when opened) */
+.envelope-flap-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(0deg, #d8d8d8 0%, #c8c8c8 100%);
+  clip-path: polygon(50% 0, 0 100%, 100% 100%);
+  transform: rotateX(180deg);
+  backface-visibility: hidden;
+}
+
+/* ========================================
+   LETTER
+   ======================================== */
+
+.letter {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  z-index: 15;
+  transform-origin: top left;
+  will-change: transform;
+}
+
+/* ========================================
+   WEBSITE CONTENT STYLES
+   ======================================== */
+
+.website-content {
+  width: 100vw;
+  min-height: 100vh;
+  background: #ffffff;
+  position: relative;
+}
+
+/* Navbar */
+.navbar {
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  padding: 0 32px;
+  z-index: 100;
+}
+
+.navbar-brand {
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: -0.5px;
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 100px 32px 80px;
+  text-align: center;
+  background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+}
+
+.hero-title {
+  font-size: 52px;
+  font-weight: 700;
+  color: #000;
+  margin: 0 0 20px 0;
+  letter-spacing: -1.5px;
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-size: 18px;
+  color: #666;
+  max-width: 550px;
+  margin: 0 auto 36px;
+  line-height: 1.7;
+}
+
+.hero-button {
+  display: inline-block;
+  padding: 16px 36px;
+  background: #000;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.hero-button:hover {
+  background: #222;
+  transform: translateY(-1px);
+}
+
+/* Features Section */
+.features-section {
+  padding: 80px 32px;
+  background: #fff;
+}
+
+.section-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  margin: 0 0 56px 0;
+  letter-spacing: -0.5px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 28px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  padding: 36px;
+  background: #fafafa;
+  border-radius: 16px;
+  border: 1px solid #eee;
+  transition: all 0.2s ease;
+}
+
+.feature-card:hover {
+  border-color: #ddd;
+  transform: translateY(-2px);
+}
+
+.feature-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #000;
+  margin: 0 0 12px 0;
+}
+
+.feature-description {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Footer */
+.footer {
+  padding: 56px 32px;
+  background: #fafafa;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 14px;
+  color: #999;
+  margin: 0;
 }
