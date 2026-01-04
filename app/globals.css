@@ -27,7 +27,7 @@ html, body {
 }
 
 body {
-  background: #000;
+  background: #f5f3ef;
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
@@ -51,7 +51,7 @@ body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: #000;
+  background: #f5f3ef;
   perspective: 1200px;
   z-index: 10;
   overflow: hidden;
@@ -115,6 +115,28 @@ body {
    All parts positioned absolutely in viewport for proper z-index layering
    Envelope dimensions: 480px x 280px, centered
    ======================================== */
+
+/* Warm glow behind envelope */
+.envelope-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 580px;
+  height: 400px;
+  background: radial-gradient(
+    circle at center,
+    rgba(255, 200, 140, 0.6) 0%,
+    rgba(255, 180, 120, 0.4) 30%,
+    rgba(255, 160, 100, 0.2) 55%,
+    transparent 75%
+  );
+  border-radius: 50%;
+  filter: blur(50px);
+  z-index: 5;
+  pointer-events: none;
+  will-change: opacity;
+}
 
 /* Envelope back panel - lowest layer */
 .envelope-back {
@@ -266,6 +288,23 @@ body {
   clip-path: polygon(0 0, 100% 0, 85% 100%, 15% 100%);
   border-radius: 8px 8px 0 0;
   pointer-events: none;
+}
+
+/* Flap text */
+.envelope-flap-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-family: var(--font-instrument-serif), serif;
+  font-size: 36px;
+  color: #4a4a4a;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 1;
+  transform-origin: center center;
+  will-change: transform, opacity;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
 }
 
 /* Back of flap (visible when opened) - trapezoid shape (inverted) */

@@ -10,6 +10,8 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
   const envelopeBackRef = useRef<HTMLDivElement>(null);
   const envelopeBodyRef = useRef<HTMLDivElement>(null);
   const flapRef = useRef<HTMLDivElement>(null);
+  const flapTextRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
   const letterRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
@@ -49,10 +51,12 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     const envelopeBack = envelopeBackRef.current;
     const envelopeBody = envelopeBodyRef.current;
     const flap = flapRef.current;
+    const flapText = flapTextRef.current;
+    const glow = glowRef.current;
     const letter = letterRef.current;
     const content = contentRef.current;
 
-    if (!envelopeBack || !envelopeBody || !flap || !letter || !content) return;
+    if (!envelopeBack || !envelopeBody || !flap || !letter || !content || !glow) return;
 
     const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
     const easeInOutQuart = (t: number): number =>
@@ -109,6 +113,18 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
 
       flap.style.transform = `translateY(${envelopeDrop}px) rotateX(${flapRotation}deg)`;
       flap.style.opacity = String(envelopeOpacity);
+
+      // Animate glow - fades with envelope
+      glow.style.opacity = String(envelopeOpacity);
+
+      // Animate flap text with the flap
+      if (flapText) {
+        // Fade out as flap opens (0% - 30%)
+        const textOpacity = 1 - flapProgress;
+        flapText.style.opacity = String(Math.max(0, textOpacity));
+        // Rotate with the flap (combine with translate for centering)
+        flapText.style.transform = `translate(-50%, -50%) rotateX(${flapRotation}deg)`;
+      }
 
       // ===== PHASE 4: Letter scales up and moves to fill screen (40% - 100%) =====
       const scaleStart = 0.4;
@@ -189,6 +205,9 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       }}
     >
       <div className="envelope-viewport">
+        {/* Warm glow behind envelope */}
+        <div ref={glowRef} className="envelope-glow"></div>
+
         {/* Back of envelope - lowest layer */}
         <div ref={envelopeBackRef} className="envelope-back"></div>
 
@@ -210,7 +229,11 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
 
         {/* Flap - highest layer */}
         <div ref={flapRef} className="envelope-flap">
-          <div className="envelope-flap-front"></div>
+          <div className="envelope-flap-front">
+            <div ref={flapTextRef} className="envelope-flap-text">
+              ready for easy dotfiles?
+            </div>
+          </div>
           <div className="envelope-flap-back"></div>
         </div>
 
