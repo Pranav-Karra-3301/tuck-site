@@ -19,8 +19,9 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
   const calculateInitialScale = useCallback(() => {
     const viewportWidth = window.innerWidth;
 
-    // We want the letter (which is viewport-sized) to appear about 220px wide initially
-    const targetWidth = 220;
+    // We want the letter (which is viewport-sized) to appear about 380px wide initially
+    // This matches the new wider envelope size (480px width, letter slightly smaller)
+    const targetWidth = 380;
     const scale = targetWidth / viewportWidth;
 
     setInitialScale(scale);
@@ -71,7 +72,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const riseStart = 0.2;
       const riseEnd = 0.5;
       const riseProgress = Math.min(Math.max((progress - riseStart) / (riseEnd - riseStart), 0), 1);
-      const letterRiseAmount = easeOutCubic(riseProgress) * 180;
+      const letterRiseAmount = easeOutCubic(riseProgress) * 220;
 
       // ===== PHASE 3: Envelope drops and fades (30% - 65%) =====
       const dropStart = 0.3;
@@ -97,6 +98,15 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const scaleProgress = Math.min(Math.max((progress - scaleStart) / (scaleEnd - scaleStart), 0), 1);
       const easedScaleProgress = easeInOutQuart(scaleProgress);
 
+      // Lower flap z-index to ensure it's behind the letter/website content
+      // Add class to lower z-index to 5 (below envelope-back at 10, letter at 15->35)
+      // Apply as soon as letter starts rising or scaling begins
+      if (riseProgress > 0 || scaleProgress > 0) {
+        flap.classList.add('behind-content');
+      } else {
+        flap.classList.remove('behind-content');
+      }
+
       // Scale from initialScale to 1
       const currentScale = initialScale + (1 - initialScale) * easedScaleProgress;
 
@@ -117,16 +127,34 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       letter.style.transformOrigin = 'top left';
 
       // Smoothly reduce border-radius as letter expands
-      const borderRadius = Math.max(0, 4 * (1 - easedScaleProgress));
+      const borderRadius = Math.max(0, 6 * (1 - easedScaleProgress));
       letter.style.borderRadius = `${borderRadius}px`;
 
       // Reduce shadow as it expands
-      const shadowOpacity = 0.4 * (1 - easedScaleProgress * 0.8);
-      const shadowBlur = 30 * (1 - easedScaleProgress * 0.7);
-      letter.style.boxShadow = `0 4px ${shadowBlur}px rgba(0, 0, 0, ${shadowOpacity})`;
+      const shadowOpacity = 0.5 * (1 - easedScaleProgress * 0.8);
+      const shadowBlur = 40 * (1 - easedScaleProgress * 0.7);
+      letter.style.boxShadow = `0 8px ${shadowBlur}px rgba(0, 0, 0, ${shadowOpacity}), 0 2px 12px rgba(0, 0, 0, ${shadowOpacity * 0.6}), 0 0 0 1px rgba(0, 0, 0, ${0.08 * (1 - easedScaleProgress * 0.5)})`;
 
       // Update z-index: starts at 15 (between back=10 and body=25), rises to 35 (above flap=30)
       letter.style.zIndex = riseProgress > 0.3 ? '35' : '15';
+      
+      // Gradually reveal the letter by adjusting clip-path as it rises and scales
+      // Initially completely hidden, then reveal as animation progresses
+      if (progress < riseStart) {
+        // Before letter starts rising, keep it completely hidden
+        letter.style.clipPath = 'inset(50% 50% 50% 50%)';
+        letter.style.opacity = '0';
+      } else if (progress < scaleStart) {
+        // As letter rises, start revealing it
+        const revealProgress = (progress - riseStart) / (scaleStart - riseStart);
+        const clipAmount = 40 * (1 - revealProgress);
+        letter.style.clipPath = `inset(${clipAmount}% ${clipAmount}% ${clipAmount}% ${clipAmount}%)`;
+        letter.style.opacity = String(Math.min(revealProgress * 2, 1));
+      } else {
+        // Once scaling starts, fully reveal
+        letter.style.clipPath = 'inset(0)';
+        letter.style.opacity = '1';
+      }
 
       // Track completion
       const complete = progress >= 0.98;
