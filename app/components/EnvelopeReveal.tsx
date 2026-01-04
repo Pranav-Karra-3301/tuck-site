@@ -69,9 +69,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const initialY = (viewportHeight - scaledHeight) / 2;
 
       const distance = animationDistanceRef.current || animationDistance;
-      const scrollable =
-        Math.max(document.documentElement.scrollHeight - window.innerHeight, distance, 1);
-      const progress = Math.min(Math.max(scrollYRef.current / scrollable, 0), 1);
+      const progress = Math.min(Math.max(scrollYRef.current / distance, 0), 1);
 
       // ===== PHASE 1: Flap opens (0% - 30%) =====
       const flapProgress = Math.min(progress / 0.3, 1);
@@ -199,7 +197,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
           </div>
         )}
       </div>
-      {!isComplete && <div className="scroll-track" aria-hidden="true"></div>}
+      <div className="scroll-track" aria-hidden="true"></div>
     </div>
   );
 }

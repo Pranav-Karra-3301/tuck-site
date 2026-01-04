@@ -43,11 +43,6 @@ body {
   padding-bottom: 100vh;
 }
 
-.envelope-container.released {
-  min-height: 0;
-  padding-bottom: 0;
-}
-
 .envelope-viewport {
   position: fixed;
   top: 0;
