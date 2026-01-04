@@ -312,8 +312,17 @@ body {
 /* Letter stays absolute - transforms handle positioning */
 /* No released class needed - animation is purely transform-based */
 
+/* Wrapper for scrollable content inside the letter */
+.letter-content-wrapper {
+  width: 100%;
+  height: auto;
+  min-height: 100vh;
+}
+
+/* Scroll track - provides scrollable distance for animation + content scrolling */
 .scroll-track {
-  height: var(--animation-distance, 0);
+  /* Animation distance + extra for content scrolling (2x viewport height for content) */
+  height: calc(var(--animation-distance, 0) + 200vh);
   pointer-events: none;
 }
 

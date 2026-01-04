@@ -11,13 +11,13 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
   const envelopeBodyRef = useRef<HTMLDivElement>(null);
   const flapRef = useRef<HTMLDivElement>(null);
   const letterRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number | null>(null);
   const scrollYRef = useRef(0);
   const animationDistanceRef = useRef(1400);
 
   const [initialScale, setInitialScale] = useState(0.12);
   const [animationDistance, setAnimationDistance] = useState(1400);
-  // Progress state for smoother transitions
   const [animationProgress, setAnimationProgress] = useState(0);
   const releaseThreshold = 0.98;
 
@@ -50,8 +50,9 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     const envelopeBody = envelopeBodyRef.current;
     const flap = flapRef.current;
     const letter = letterRef.current;
+    const content = contentRef.current;
 
-    if (!envelopeBack || !envelopeBody || !flap || !letter) return;
+    if (!envelopeBack || !envelopeBody || !flap || !letter || !content) return;
 
     const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
     const easeInOutQuart = (t: number): number =>
@@ -69,7 +70,9 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const initialY = (viewportHeight - scaledHeight) / 2;
 
       const distance = animationDistanceRef.current || animationDistance;
-      const progress = Math.min(Math.max(scrollYRef.current / distance, 0), 1);
+      // Don't cap progress at 1 - we need values > 1 for content scrolling
+      const rawProgress = scrollYRef.current / distance;
+      const progress = Math.min(Math.max(rawProgress, 0), 1);
       
       // Update progress state for React re-renders
       setAnimationProgress(progress);
@@ -128,16 +131,31 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const currentX = startX + (0 - startX) * easedScaleProgress;
       const currentY = startY + (0 - startY) * easedScaleProgress;
 
-      // Apply letter transforms directly - no CSS class switching
+      // Apply letter transforms
       letter.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
       letter.style.transformOrigin = 'top left';
       letter.style.borderRadius = `${Math.max(0, 6 * (1 - easedScaleProgress))}px`;
       letter.style.opacity = progress < riseStart ? '0' : '1';
       letter.style.zIndex = riseProgress > 0.3 ? '35' : '15';
       
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:130',message:'Animation frame',data:{progress,currentX,currentY,currentScale,letterOpacity:letter.style.opacity,envelopeOpacity,scrollY:scrollYRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'seamless-fix',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
+      // ===== PHASE 5: Content scrolling (100%+) =====
+      // When animation is complete (progress >= 1), additional scroll drives content scrolling
+      if (rawProgress >= 1) {
+        // Calculate how much extra scroll beyond the animation distance
+        const contentScrollAmount = scrollYRef.current - distance;
+        // Scroll the content container
+        content.scrollTop = Math.max(0, contentScrollAmount);
+        // Enable scrolling on content
+        letter.style.overflow = 'hidden';
+        content.style.overflow = 'hidden';
+        content.style.height = '100vh';
+      } else {
+        // Reset content scroll when animating
+        content.scrollTop = 0;
+        letter.style.overflow = 'hidden';
+        content.style.overflow = 'hidden';
+        content.style.height = 'auto';
+      }
     };
 
     const handleScroll = () => {
@@ -166,7 +184,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     <div
       className="envelope-container"
       style={{
-        // Always provide scrollable distance for the animation
+        // Provide scrollable distance for animation + content
         ['--animation-distance' as string]: `${animationDistance}px`,
       }}
     >
@@ -176,7 +194,9 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
 
         {/* Letter - starts between back and body */}
         <div ref={letterRef} className="letter">
-          {children}
+          <div ref={contentRef} className="letter-content-wrapper">
+            {children}
+          </div>
         </div>
 
         {/* Front body of envelope - covers letter initially */}
@@ -197,7 +217,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
           </div>
         )}
       </div>
-      {/* Always keep scroll track for both forward and reverse animation */}
+      {/* Scroll track - provides scrollable distance for animation + content */}
       <div className="scroll-track" aria-hidden="true"></div>
     </div>
   );
