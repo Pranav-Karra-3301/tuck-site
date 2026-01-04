@@ -48,14 +48,10 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     const scaledWidth = viewportWidth * initialScale;
     const scaledHeight = viewportHeight * initialScale;
 
-    // Envelope dimensions for positioning
-    const envelopeHeight = 180;
-    const envelopeBodyHeight = envelopeHeight * 0.65; // 65% of envelope is the body
-
-    // Initial position: letter starts inside envelope, pushed down so body covers most of it
-    // Only the top portion should peek through the open flap area
+    // Initial position: centered in viewport (same as envelope)
+    // Z-index layering ensures body (z:25) covers letter (z:15) where they overlap
     const initialX = (viewportWidth - scaledWidth) / 2;
-    const initialY = (viewportHeight - scaledHeight) / 2 + (envelopeBodyHeight * 0.3);
+    const initialY = (viewportHeight - scaledHeight) / 2;
 
     // Easing functions
     const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
@@ -84,15 +80,15 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const envelopeDrop = easeInOutQuart(dropProgress) * viewportHeight;
       const envelopeOpacity = 1 - easeOutCubic(dropProgress);
 
-      // Apply transforms to each envelope part individually (preserve translateZ for 3D layering)
-      envelopeBack.style.transform = `translateY(${envelopeDrop}px) translateZ(-1px)`;
+      // Apply transforms to each envelope part (all siblings, z-index handles layering)
+      envelopeBack.style.transform = `translateY(${envelopeDrop}px)`;
       envelopeBack.style.opacity = String(envelopeOpacity);
 
-      envelopeBody.style.transform = `translateY(${envelopeDrop}px) translateZ(1px)`;
+      envelopeBody.style.transform = `translateY(${envelopeDrop}px)`;
       envelopeBody.style.opacity = String(envelopeOpacity);
 
-      // Flap gets drop, rotation, and stays on top
-      flap.style.transform = `translateY(${envelopeDrop}px) translateZ(2px) rotateX(${flapRotation}deg)`;
+      // Flap gets drop + rotation
+      flap.style.transform = `translateY(${envelopeDrop}px) rotateX(${flapRotation}deg)`;
       flap.style.opacity = String(envelopeOpacity);
 
       // ===== PHASE 4: Letter scales up and moves to fill screen (40% - 100%) =====
@@ -117,10 +113,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const currentX = startX + (endX - startX) * easedScaleProgress;
       const currentY = startY + (endY - startY) * easedScaleProgress;
 
-      // Letter depth: starts at 0 (between back=-1 and body=1), rises to 3 (above flap=2)
-      const letterZ = riseProgress > 0.3 ? 3 : 0;
-
-      letter.style.transform = `translate(${currentX}px, ${currentY}px) translateZ(${letterZ}px) scale(${currentScale})`;
+      letter.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
       letter.style.transformOrigin = 'top left';
 
       // Smoothly reduce border-radius as letter expands
@@ -132,7 +125,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const shadowBlur = 30 * (1 - easedScaleProgress * 0.7);
       letter.style.boxShadow = `0 4px ${shadowBlur}px rgba(0, 0, 0, ${shadowOpacity})`;
 
-      // Update z-index as letter rises above envelope
+      // Update z-index: starts at 15 (between back=10 and body=25), rises to 35 (above flap=30)
       letter.style.zIndex = riseProgress > 0.3 ? '35' : '15';
 
       // Track completion
@@ -150,22 +143,29 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     <div ref={containerRef} className="envelope-container">
       {/* Fixed viewport for animation */}
       <div className={`envelope-viewport ${isComplete ? 'complete' : ''}`}>
-        {/* Envelope wrapper for positioning (no transforms applied here) */}
-        <div className="envelope-wrapper">
-          {/* Back of envelope - lowest layer */}
-          <div ref={envelopeBackRef} className="envelope-back"></div>
-          {/* Flap - highest layer */}
-          <div ref={flapRef} className="envelope-flap">
-            <div className="envelope-flap-front"></div>
-            <div className="envelope-flap-back"></div>
-          </div>
-          {/* Front body of envelope - covers letter initially */}
-          <div ref={envelopeBodyRef} className="envelope-body"></div>
-        </div>
+        {/*
+          All elements are siblings for proper z-index layering:
+          - envelope-back: z-index 10 (furthest back)
+          - letter: z-index 15 -> 35 (middle, rises above)
+          - envelope-body: z-index 25 (covers letter)
+          - envelope-flap: z-index 30 (top)
+        */}
 
-        {/* Letter - layered between back and body */}
+        {/* Back of envelope - lowest layer */}
+        <div ref={envelopeBackRef} className="envelope-back"></div>
+
+        {/* Letter - starts between back and body */}
         <div ref={letterRef} className="letter">
           {children}
+        </div>
+
+        {/* Front body of envelope - covers letter initially */}
+        <div ref={envelopeBodyRef} className="envelope-body"></div>
+
+        {/* Flap - highest layer */}
+        <div ref={flapRef} className="envelope-flap">
+          <div className="envelope-flap-front"></div>
+          <div className="envelope-flap-back"></div>
         </div>
 
         {/* Scroll indicator */}
