@@ -140,7 +140,6 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
 
     const handleScroll = () => {
       scrollYRef.current = window.scrollY;
-      if (isCompleteRef.current) return;
       if (rafRef.current !== null) return;
       rafRef.current = window.requestAnimationFrame(applyAnimationFrame);
     };
