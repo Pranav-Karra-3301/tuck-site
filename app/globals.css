@@ -36,11 +36,18 @@ body {
    ENVELOPE ANIMATION STYLES
    ======================================== */
 
-.envelope-container {
+.envelope-container:not(.released) {
   position: relative;
   width: 100%;
   min-height: calc(var(--animation-distance, 0) + 120vh);
   padding-bottom: 100vh;
+}
+
+.envelope-container.released {
+  position: relative;
+  width: 100%;
+  min-height: auto;
+  padding-bottom: 0;
 }
 
 .envelope-viewport {

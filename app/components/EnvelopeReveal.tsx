@@ -196,7 +196,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
           </div>
         )}
       </div>
-      <div className="scroll-track" aria-hidden="true"></div>
+      {!isComplete && <div className="scroll-track" aria-hidden="true"></div>}
     </div>
   );
 }
