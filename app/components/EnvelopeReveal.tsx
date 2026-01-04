@@ -14,11 +14,11 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
   const rafRef = useRef<number | null>(null);
   const scrollYRef = useRef(0);
   const animationDistanceRef = useRef(1400);
-  const isCompleteRef = useRef(false);
 
-  const [isComplete, setIsComplete] = useState(false);
   const [initialScale, setInitialScale] = useState(0.12);
   const [animationDistance, setAnimationDistance] = useState(1400);
+  // Progress state for smoother transitions
+  const [animationProgress, setAnimationProgress] = useState(0);
   const releaseThreshold = 0.98;
 
   // Calculate the initial scale so the letter fits the envelope on both axes
@@ -70,9 +70,9 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
 
       const distance = animationDistanceRef.current || animationDistance;
       const progress = Math.min(Math.max(scrollYRef.current / distance, 0), 1);
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:60',message:'Animation frame applied',data:{scrollY:scrollYRef.current,distance,progress,isComplete:isCompleteRef.current,scaleProgress:Math.min(Math.max((progress-0.4)/(1-0.4),0),1)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
+      
+      // Update progress state for React re-renders
+      setAnimationProgress(progress);
 
       // ===== PHASE 1: Flap opens (0% - 30%) =====
       const flapProgress = Math.min(progress / 0.3, 1);
@@ -97,7 +97,7 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const envelopeDrop = easeInOutQuart(dropProgress) * viewportHeight;
       const envelopeOpacity = 1 - easeOutCubic(dropProgress);
 
-      // Apply transforms to each envelope part (all siblings, z-index handles layering)
+      // Apply envelope transforms
       envelopeBack.style.transform = `translateY(${envelopeDrop}px)`;
       envelopeBack.style.opacity = String(envelopeOpacity);
 
@@ -128,38 +128,20 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const currentX = startX + (0 - startX) * easedScaleProgress;
       const currentY = startY + (0 - startY) * easedScaleProgress;
 
-      // Only apply transforms when not released (released class uses transform: none !important)
-      const isReleased = isCompleteRef.current;
-      if (!isReleased) {
-        letter.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
-        letter.style.transformOrigin = 'top left';
-        letter.style.borderRadius = `${Math.max(0, 6 * (1 - easedScaleProgress))}px`;
-      }
+      // Apply letter transforms directly - no CSS class switching
+      letter.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+      letter.style.transformOrigin = 'top left';
+      letter.style.borderRadius = `${Math.max(0, 6 * (1 - easedScaleProgress))}px`;
       letter.style.opacity = progress < riseStart ? '0' : '1';
       letter.style.zIndex = riseProgress > 0.3 ? '35' : '15';
+      
       // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:128',message:'Letter transform applied',data:{currentX,currentY,currentScale,progress,isComplete:isCompleteRef.current,isReleased,hasReleasedClass:letter.classList.contains('released')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'C'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:130',message:'Animation frame',data:{progress,currentX,currentY,currentScale,letterOpacity:letter.style.opacity,envelopeOpacity,scrollY:scrollYRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'seamless-fix',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
-
-      const complete = progress >= releaseThreshold;
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:134',message:'Progress and completion check',data:{progress,releaseThreshold,complete,isCompleteRef:isCompleteRef.current,scrollY:scrollYRef.current,distance},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
-      // Always update isComplete based on current progress to allow reversal
-      if (complete !== isCompleteRef.current) {
-        // #region agent log
-        fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:137',message:'isComplete state change',data:{oldComplete:isCompleteRef.current,newComplete:complete,progress,scrollY:scrollYRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
-        isCompleteRef.current = complete;
-        setIsComplete(complete);
-      }
     };
 
     const handleScroll = () => {
       scrollYRef.current = window.scrollY;
-      // #region agent log
-      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:141',message:'Scroll event fired',data:{scrollY:window.scrollY,isComplete:isCompleteRef.current,rafPending:rafRef.current!==null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
       if (rafRef.current !== null) return;
       rafRef.current = window.requestAnimationFrame(applyAnimationFrame);
     };
@@ -177,29 +159,23 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     };
   }, [initialScale, animationDistance]);
 
-  // Apply 'released' class when animation is complete to enable normal scrolling
-  // Remove it when scrolling back to allow reverse animation
-  const viewportClass = `envelope-viewport ${isComplete ? 'released' : ''}`;
-  const letterClass = `letter ${isComplete ? 'released' : ''}`;
-  const containerClass = `envelope-container ${isComplete ? 'released' : ''}`;
-  // #region agent log
-  fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:175',message:'Class names computed',data:{isComplete,viewportClass,letterClass,containerClass,scrollY:scrollYRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
+  // Determine if we're in "complete" state (animation finished)
+  const isComplete = animationProgress >= releaseThreshold;
 
   return (
     <div
-      className={containerClass}
+      className="envelope-container"
       style={{
-        // Provide scrollable distance for the animation in both directions
+        // Always provide scrollable distance for the animation
         ['--animation-distance' as string]: `${animationDistance}px`,
       }}
     >
-      <div className={viewportClass}>
+      <div className="envelope-viewport">
         {/* Back of envelope - lowest layer */}
         <div ref={envelopeBackRef} className="envelope-back"></div>
 
         {/* Letter - starts between back and body */}
-        <div ref={letterRef} className={letterClass}>
+        <div ref={letterRef} className="letter">
           {children}
         </div>
 
@@ -221,7 +197,8 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
           </div>
         )}
       </div>
-      {!isComplete && <div className="scroll-track" aria-hidden="true"></div>}
+      {/* Always keep scroll track for both forward and reverse animation */}
+      <div className="scroll-track" aria-hidden="true"></div>
     </div>
   );
 }
