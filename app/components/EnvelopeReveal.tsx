@@ -70,6 +70,9 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
 
       const distance = animationDistanceRef.current || animationDistance;
       const progress = Math.min(Math.max(scrollYRef.current / distance, 0), 1);
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:60',message:'Animation frame applied',data:{scrollY:scrollYRef.current,distance,progress,isComplete:isCompleteRef.current,scaleProgress:Math.min(Math.max((progress-0.4)/(1-0.4),0),1)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
 
       // ===== PHASE 1: Flap opens (0% - 30%) =====
       const flapProgress = Math.min(progress / 0.3, 1);
@@ -125,14 +128,28 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const currentX = startX + (0 - startX) * easedScaleProgress;
       const currentY = startY + (0 - startY) * easedScaleProgress;
 
-      letter.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
-      letter.style.transformOrigin = 'top left';
+      // Only apply transforms when not released (released class uses transform: none !important)
+      const isReleased = isCompleteRef.current;
+      if (!isReleased) {
+        letter.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+        letter.style.transformOrigin = 'top left';
+        letter.style.borderRadius = `${Math.max(0, 6 * (1 - easedScaleProgress))}px`;
+      }
       letter.style.opacity = progress < riseStart ? '0' : '1';
-      letter.style.borderRadius = `${Math.max(0, 6 * (1 - easedScaleProgress))}px`;
       letter.style.zIndex = riseProgress > 0.3 ? '35' : '15';
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:128',message:'Letter transform applied',data:{currentX,currentY,currentScale,progress,isComplete:isCompleteRef.current,isReleased,hasReleasedClass:letter.classList.contains('released')},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
 
       const complete = progress >= releaseThreshold;
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:134',message:'Progress and completion check',data:{progress,releaseThreshold,complete,isCompleteRef:isCompleteRef.current,scrollY:scrollYRef.current,distance},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+      // Always update isComplete based on current progress to allow reversal
       if (complete !== isCompleteRef.current) {
+        // #region agent log
+        fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:137',message:'isComplete state change',data:{oldComplete:isCompleteRef.current,newComplete:complete,progress,scrollY:scrollYRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
         isCompleteRef.current = complete;
         setIsComplete(complete);
       }
@@ -140,6 +157,9 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
 
     const handleScroll = () => {
       scrollYRef.current = window.scrollY;
+      // #region agent log
+      fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:141',message:'Scroll event fired',data:{scrollY:window.scrollY,isComplete:isCompleteRef.current,rafPending:rafRef.current!==null},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
       if (rafRef.current !== null) return;
       rafRef.current = window.requestAnimationFrame(applyAnimationFrame);
     };
@@ -157,9 +177,14 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     };
   }, [initialScale, animationDistance]);
 
+  // Apply 'released' class when animation is complete to enable normal scrolling
+  // Remove it when scrolling back to allow reverse animation
   const viewportClass = `envelope-viewport ${isComplete ? 'released' : ''}`;
   const letterClass = `letter ${isComplete ? 'released' : ''}`;
   const containerClass = `envelope-container ${isComplete ? 'released' : ''}`;
+  // #region agent log
+  fetch('http://127.0.0.1:7244/ingest/36a041cf-cc73-487b-9b19-48a59626d188',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'EnvelopeReveal.tsx:175',message:'Class names computed',data:{isComplete,viewportClass,letterClass,containerClass,scrollY:scrollYRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
 
   return (
     <div
