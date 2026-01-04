@@ -200,7 +200,13 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
         </div>
 
         {/* Front body of envelope - covers letter initially */}
-        <div ref={envelopeBodyRef} className="envelope-body"></div>
+        <div ref={envelopeBodyRef} className="envelope-body">
+          <img 
+            src="/tuck.png" 
+            alt="Tuck stamp" 
+            className="envelope-stamp"
+          />
+        </div>
 
         {/* Flap - highest layer */}
         <div ref={flapRef} className="envelope-flap">
