@@ -8,7 +8,8 @@ interface EnvelopeRevealProps {
 
 export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const envelopeRef = useRef<HTMLDivElement>(null);
+  const envelopeBackRef = useRef<HTMLDivElement>(null);
+  const envelopeBodyRef = useRef<HTMLDivElement>(null);
   const flapRef = useRef<HTMLDivElement>(null);
   const letterRef = useRef<HTMLDivElement>(null);
   const [isComplete, setIsComplete] = useState(false);
@@ -32,11 +33,12 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
   }, [calculateInitialScale]);
 
   useEffect(() => {
-    const envelope = envelopeRef.current;
+    const envelopeBack = envelopeBackRef.current;
+    const envelopeBody = envelopeBodyRef.current;
     const flap = flapRef.current;
     const letter = letterRef.current;
 
-    if (!envelope || !flap || !letter) return;
+    if (!envelopeBack || !envelopeBody || !flap || !letter) return;
 
     // Get viewport dimensions
     const viewportHeight = window.innerHeight;
@@ -46,9 +48,14 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     const scaledWidth = viewportWidth * initialScale;
     const scaledHeight = viewportHeight * initialScale;
 
-    // Initial position: centered in viewport
+    // Envelope dimensions for positioning
+    const envelopeHeight = 180;
+    const envelopeBodyHeight = envelopeHeight * 0.65; // 65% of envelope is the body
+
+    // Initial position: letter starts inside envelope, pushed down so body covers most of it
+    // Only the top portion should peek through the open flap area
     const initialX = (viewportWidth - scaledWidth) / 2;
-    const initialY = (viewportHeight - scaledHeight) / 2;
+    const initialY = (viewportHeight - scaledHeight) / 2 + (envelopeBodyHeight * 0.3);
 
     // Easing functions
     const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
@@ -63,7 +70,6 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       // ===== PHASE 1: Flap opens (0% - 30%) =====
       const flapProgress = Math.min(progress / 0.3, 1);
       const flapRotation = easeOutCubic(flapProgress) * -110;
-      flap.style.transform = `rotateX(${flapRotation}deg)`;
 
       // ===== PHASE 2: Letter rises out of envelope (20% - 50%) =====
       const riseStart = 0.2;
@@ -77,8 +83,17 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const dropProgress = Math.min(Math.max((progress - dropStart) / (dropEnd - dropStart), 0), 1);
       const envelopeDrop = easeInOutQuart(dropProgress) * viewportHeight;
       const envelopeOpacity = 1 - easeOutCubic(dropProgress);
-      envelope.style.transform = `translateY(${envelopeDrop}px)`;
-      envelope.style.opacity = String(envelopeOpacity);
+
+      // Apply transforms to each envelope part individually (preserve translateZ for 3D layering)
+      envelopeBack.style.transform = `translateY(${envelopeDrop}px) translateZ(-1px)`;
+      envelopeBack.style.opacity = String(envelopeOpacity);
+
+      envelopeBody.style.transform = `translateY(${envelopeDrop}px) translateZ(1px)`;
+      envelopeBody.style.opacity = String(envelopeOpacity);
+
+      // Flap gets drop, rotation, and stays on top
+      flap.style.transform = `translateY(${envelopeDrop}px) translateZ(2px) rotateX(${flapRotation}deg)`;
+      flap.style.opacity = String(envelopeOpacity);
 
       // ===== PHASE 4: Letter scales up and moves to fill screen (40% - 100%) =====
       const scaleStart = 0.4;
@@ -102,7 +117,10 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       const currentX = startX + (endX - startX) * easedScaleProgress;
       const currentY = startY + (endY - startY) * easedScaleProgress;
 
-      letter.style.transform = `translate(${currentX}px, ${currentY}px) scale(${currentScale})`;
+      // Letter depth: starts at 0 (between back=-1 and body=1), rises to 3 (above flap=2)
+      const letterZ = riseProgress > 0.3 ? 3 : 0;
+
+      letter.style.transform = `translate(${currentX}px, ${currentY}px) translateZ(${letterZ}px) scale(${currentScale})`;
       letter.style.transformOrigin = 'top left';
 
       // Smoothly reduce border-radius as letter expands
@@ -132,17 +150,20 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
     <div ref={containerRef} className="envelope-container">
       {/* Fixed viewport for animation */}
       <div className={`envelope-viewport ${isComplete ? 'complete' : ''}`}>
-        {/* Envelope */}
-        <div ref={envelopeRef} className="envelope">
-          <div className="envelope-back"></div>
+        {/* Envelope wrapper for positioning (no transforms applied here) */}
+        <div className="envelope-wrapper">
+          {/* Back of envelope - lowest layer */}
+          <div ref={envelopeBackRef} className="envelope-back"></div>
+          {/* Flap - highest layer */}
           <div ref={flapRef} className="envelope-flap">
             <div className="envelope-flap-front"></div>
             <div className="envelope-flap-back"></div>
           </div>
-          <div className="envelope-body"></div>
+          {/* Front body of envelope - covers letter initially */}
+          <div ref={envelopeBodyRef} className="envelope-body"></div>
         </div>
 
-        {/* Letter - full viewport size, scaled down initially */}
+        {/* Letter - layered between back and body */}
         <div ref={letterRef} className="letter">
           {children}
         </div>
