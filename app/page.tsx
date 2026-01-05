@@ -4,21 +4,9 @@ export default function Home() {
   return (
     <EnvelopeReveal>
       <div className="website-content">
-        {/* Navbar */}
-        <nav className="navbar">
-          <span className="navbar-brand">Tuck</span>
-        </nav>
-
         {/* Hero Section */}
         <section className="hero-section">
-          <h1 className="hero-title">Welcome to Tuck</h1>
-          <p className="hero-subtitle">
-            A beautifully crafted experience delivered straight to you.
-            Discover what makes us different.
-          </p>
-          <a href="#features" className="hero-button">
-            Get Started
-          </a>
+          <h1 className="hero-title">tuck</h1>
         </section>
 
         {/* Features Section */}

@@ -153,6 +153,13 @@ export default function EnvelopeReveal({ children }: EnvelopeRevealProps) {
       letter.style.borderRadius = `${Math.max(0, 6 * (1 - easedScaleProgress))}px`;
       letter.style.opacity = progress < riseStart ? '0' : '1';
       letter.style.zIndex = riseProgress > 0.3 ? '35' : '15';
+
+      // Shadow during expansion - peaks in middle, fades at start and end
+      const shadowIntensity = Math.sin(scaleProgress * Math.PI) * (1 - easedScaleProgress * 0.7);
+      letter.style.boxShadow = shadowIntensity > 0.01
+        ? `0 ${20 * shadowIntensity}px ${60 * shadowIntensity}px rgba(0, 0, 0, ${0.25 * shadowIntensity}),
+           0 ${8 * shadowIntensity}px ${24 * shadowIntensity}px rgba(0, 0, 0, ${0.15 * shadowIntensity})`
+        : 'none';
       
       // ===== PHASE 5: Content scrolling (100%+) =====
       // When animation is complete (progress >= 1), additional scroll drives content scrolling
