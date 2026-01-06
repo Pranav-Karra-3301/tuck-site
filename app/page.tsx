@@ -1,6 +1,7 @@
 import Terminal from "./components/Terminal";
 import FeatureShowcase from "./components/FeatureShowcase";
 import HeroInstall from "./components/HeroInstall";
+import ThemeToggle from "./components/ThemeToggle";
 
 export default function Home() {
   return (
@@ -322,6 +323,7 @@ export default function Home() {
               </span>
             </p>
           </div>
+          <ThemeToggle />
           <p className="footer-copyright">&copy; 2025 tuck. MIT License.</p>
         </div>
       </footer>

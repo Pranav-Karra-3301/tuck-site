@@ -1,4 +1,20 @@
 :root {
+  /* Layout (theme-independent) */
+  --content-width: 1280px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 24px;
+  --spacing-lg: 48px;
+  --spacing-xl: 80px;
+
+  /* Radii: outer = inner + padding */
+  --radius-inner: 8px;
+  --radius-outer: 20px; /* 8px + 12px padding */
+}
+
+/* Dark Theme (default) */
+:root,
+[data-theme="dark"] {
   /* Colors */
   --bg-base: #141414;
   --bg-elevated: #1a1a1a;
@@ -11,18 +27,46 @@
   --success: #4ade80;
   --error: #f87171;
   --border: rgba(255, 255, 255, 0.08);
+  
+  /* Terminal-specific colors */
+  --terminal-bg: #0a0a0a;
+  --terminal-titlebar-bg: #0a0a0a;
+  --terminal-button-bg: #3a3a3a;
+  --terminal-button-border: rgba(255, 255, 255, 0.05);
+  --terminal-title-color: #505050;
+  --terminal-scrollbar: rgba(255, 255, 255, 0.1);
+  --terminal-scrollbar-hover: rgba(255, 255, 255, 0.2);
+  
+  /* GitHub link */
+  --github-link-bg: rgba(26, 26, 26, 0.95);
+}
 
-  /* Layout */
-  --content-width: 1280px;
-  --spacing-xs: 8px;
-  --spacing-sm: 12px;
-  --spacing-md: 24px;
-  --spacing-lg: 48px;
-  --spacing-xl: 80px;
-
-  /* Radii: outer = inner + padding */
-  --radius-inner: 8px;
-  --radius-outer: 20px; /* 8px + 12px padding */
+/* Light Theme */
+[data-theme="light"] {
+  /* Colors */
+  --bg-base: #F7F7F4;
+  --bg-elevated: #F2F1EE;
+  --bg-surface: #e8e7e4;
+  --text-primary: #1a1a1a;
+  --text-secondary: #5a5a5a;
+  --text-muted: #8a8a8a;
+  --accent: #ff6b35;
+  --accent-hover: #ff8555;
+  --success: #2d8659;
+  --error: #dc2626;
+  --border: rgba(0, 0, 0, 0.08);
+  
+  /* Terminal-specific colors */
+  --terminal-bg: #fafaf9;
+  --terminal-titlebar-bg: #f5f5f4;
+  --terminal-button-bg: #d4d4d2;
+  --terminal-button-border: rgba(0, 0, 0, 0.1);
+  --terminal-title-color: #a8a8a6;
+  --terminal-scrollbar: rgba(0, 0, 0, 0.15);
+  --terminal-scrollbar-hover: rgba(0, 0, 0, 0.25);
+  
+  /* GitHub link */
+  --github-link-bg: rgba(242, 241, 238, 0.95);
 }
 
 * {
@@ -160,7 +204,7 @@ body {
   width: 44px;
   height: 44px;
   color: var(--text-secondary);
-  background: rgba(26, 26, 26, 0.95);
+  background: var(--github-link-bg);
   border: 1px solid var(--border);
   border-radius: 50%;
   transition: all 0.2s ease;
@@ -332,7 +376,7 @@ body {
 .terminal-window {
   position: relative;
   z-index: 1;
-  background: #0a0a0a;
+  background: var(--terminal-bg);
   border-radius: var(--radius-inner);
   overflow: hidden;
   display: flex;
@@ -351,7 +395,7 @@ body {
   display: flex;
   align-items: center;
   padding: 10px 14px;
-  background: #0a0a0a;
+  background: var(--terminal-titlebar-bg);
   flex-shrink: 0;
   cursor: grab;
 }
@@ -369,15 +413,15 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #3a3a3a;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--terminal-button-bg);
+  border: 1px solid var(--terminal-button-border);
 }
 
 .terminal-title {
   flex: 1;
   text-align: center;
   font-size: 13px;
-  color: #505050;
+  color: var(--terminal-title-color);
 }
 
 .terminal-spacer {
@@ -391,7 +435,7 @@ body {
   overflow-x: hidden;
   font-size: 13px;
   line-height: 1.5;
-  background: #0a0a0a;
+  background: var(--terminal-bg);
   cursor: text;
 }
 
@@ -405,12 +449,12 @@ body {
 }
 
 .terminal-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--terminal-scrollbar);
   border-radius: 3px;
 }
 
 .terminal-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--terminal-scrollbar-hover);
 }
 
 /* Resize handle */
@@ -1075,6 +1119,59 @@ body {
   text-align: right;
   white-space: nowrap;
   margin: 0;
+}
+
+/* Theme Toggle */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-base);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+}
+
+.theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.theme-btn:hover {
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+}
+
+.theme-btn.active {
+  color: var(--accent);
+  background: rgba(255, 107, 53, 0.1);
+}
+
+.theme-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.theme-btn svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* ========================================
