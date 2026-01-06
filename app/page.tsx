@@ -60,7 +60,7 @@ export default function Home() {
         command="tuck add ~/.zshrc ~/.gitconfig"
         link={{ text: "Learn about tracking", href: "#commands" }}
         painting={{
-          src: "/paintings/heart-of-the-andes.jpeg",
+          src: "/paintings/heart-of-the-andes.webp",
           title: "Heart of the Andes",
           artist: "Frederic Edwin Church",
           year: "1859",
@@ -75,7 +75,7 @@ export default function Home() {
         reversed
         link={{ text: "View all commands", href: "#commands" }}
         painting={{
-          src: "/paintings/the-gulf-stream.jpeg",
+          src: "/paintings/the-gulf-stream.webp",
           title: "The Gulf Stream",
           artist: "Winslow Homer",
           year: "1899",
@@ -89,7 +89,7 @@ export default function Home() {
         command="tuck sync"
         link={{ text: "See how sync works", href: "#commands" }}
         painting={{
-          src: "/paintings/rocky-mountains-landers-peak.jpeg",
+          src: "/paintings/rocky-mountains-landers-peak.webp",
           title: "The Rocky Mountains, Lander's Peak",
           artist: "Albert Bierstadt",
           year: "1863",
@@ -104,7 +104,7 @@ export default function Home() {
         reversed
         link={{ text: "Learn about apply", href: "#commands" }}
         painting={{
-          src: "/paintings/wyoming-valley-pennsylvania.jpeg",
+          src: "/paintings/wyoming-valley-pennsylvania.webp",
           title: "Wyoming Valley, Pennsylvania",
           artist: "Jasper Francis Cropsey",
           year: "1864",
@@ -118,7 +118,7 @@ export default function Home() {
         command="tuck restore --all"
         link={{ text: "Explore restore options", href: "#commands" }}
         painting={{
-          src: "/paintings/hill-of-the-alhambra.jpeg",
+          src: "/paintings/hill-of-the-alhambra.webp",
           title: "The Hill of the Alhambra, Granada",
           artist: "Samuel Colman",
           year: "1865",
