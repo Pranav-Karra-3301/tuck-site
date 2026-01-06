@@ -742,6 +742,15 @@ body {
   color: var(--text-secondary);
 }
 
+/* Feature showcase attributions are on paintings - use fixed colors */
+.feature-showcase-terminal.has-painting .painting-attribution {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.feature-showcase-terminal.has-painting .painting-attribution:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+
 .hero-attribution {
   margin-top: 12px;
 }
