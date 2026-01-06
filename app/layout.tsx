@@ -14,36 +14,52 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "tuck the modern dotfiles manager",
-  description: "tuck - the modern dotfiles manager. Manage your dotfiles with ease and elegance.",
+  title: {
+    default: "tuck - The Modern Dotfiles Manager",
+    template: "%s | tuck",
+  },
+  description: "Simple, fast, and built in TypeScript. Manage your dotfiles with Git, sync across machines, and never lose your configs again.",
+  keywords: ["dotfiles", "dotfiles manager", "config manager", "git", "typescript", "cli", "configuration", "sync", "backup"],
+  authors: [{ name: "Pranav Karra" }],
+  creator: "Pranav Karra",
   metadataBase: new URL("https://tuck.sh"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "tuck the modern dotfiles manager",
-    description: "tuck - the modern dotfiles manager. Manage your dotfiles with ease and elegance.",
+    type: "website",
+    locale: "en_US",
     url: "https://tuck.sh",
     siteName: "tuck",
-    type: "website",
+    title: "tuck - The Modern Dotfiles Manager",
+    description: "Simple, fast, and built in TypeScript. Manage your dotfiles with Git, sync across machines, and never lose your configs again.",
     images: [
       {
         url: "/tuck.png",
         width: 1200,
-        height: 630,
-        alt: "tuck - the modern dotfiles manager",
+        height: 1200,
+        alt: "tuck - The Modern Dotfiles Manager",
+        type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "tuck the modern dotfiles manager",
-    description: "tuck - the modern dotfiles manager. Manage your dotfiles with ease and elegance.",
+    title: "tuck - The Modern Dotfiles Manager",
+    description: "Simple, fast, and built in TypeScript. Manage your dotfiles with Git, sync across machines, and never lose your configs again.",
+    creator: "@pranavkarra",
     images: ["/tuck.png"],
   },
-  icons: {
-    icon: "/tuck.png",
-    apple: "/tuck.png",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
