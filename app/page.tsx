@@ -2,6 +2,7 @@ import Terminal from "./components/Terminal";
 import FeatureShowcase from "./components/FeatureShowcase";
 import HeroInstall from "./components/HeroInstall";
 import ThemeToggle from "./components/ThemeToggle";
+import RotatingEarth from "./components/RotatingEarth";
 
 export default function Home() {
   return (
@@ -258,6 +259,18 @@ export default function Home() {
               and pushed to your Git remote. On a new machine, just clone
               and run <code>tuck link</code>.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Open Source Community Section */}
+      <section className="community-section">
+        <div className="community-content">
+          <div className="community-text">
+            <h2 className="section-title">Built with the open source community</h2>
+          </div>
+          <div className="community-globe">
+            <RotatingEarth width={500} height={500} />
           </div>
         </div>
       </section>

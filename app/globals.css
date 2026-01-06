@@ -934,6 +934,54 @@ body {
 }
 
 /* ========================================
+   COMMUNITY SECTION
+   ======================================== */
+
+.community-section {
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background: var(--bg-base);
+}
+
+.community-content {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-lg);
+  align-items: center;
+}
+
+.community-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-right: var(--spacing-md);
+}
+
+.community-text .section-title {
+  text-align: left;
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.community-globe {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.community-globe canvas {
+  cursor: grab;
+  max-width: 100%;
+  height: auto;
+}
+
+.community-globe canvas:active {
+  cursor: grabbing;
+}
+
+/* ========================================
    CTA SECTION
    ======================================== */
 
@@ -1258,8 +1306,27 @@ body {
   .install-section,
   .commands-section,
   .how-section,
+  .community-section,
   .cta-section {
     padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .community-content {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+  }
+
+  .community-text {
+    padding-right: 0;
+  }
+
+  .community-text .section-title {
+    font-size: 2.5rem;
+    text-align: center;
+  }
+
+  .community-globe {
+    order: -1;
   }
 
   .footer {
