@@ -356,17 +356,20 @@ body {
 
 .showcase-container {
   position: relative;
-  background-image: url('/hero.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   border-radius: var(--radius-inner);
-  border: 1px solid var(--border);
-  padding: var(--spacing-lg);
-  height: 600px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.hero-showcase .showcase-container {
+  background-image: url('/paintings/lake-george-free-study.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border: 1px solid var(--border);
+  padding: var(--spacing-lg);
+  height: 600px;
 }
 
 /* ========================================
@@ -706,6 +709,41 @@ body {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* Painting backgrounds for feature showcases */
+.feature-showcase-terminal.has-painting {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  flex-direction: column;
+}
+
+.feature-showcase-terminal.has-painting .showcase-container {
+  position: relative;
+  z-index: 2;
+}
+
+.painting-attribution {
+  display: block;
+  text-align: center;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-style: italic;
+  position: relative;
+  z-index: 2;
+}
+
+.painting-attribution:hover {
+  color: var(--text-secondary);
+}
+
+.hero-attribution {
+  margin-top: 12px;
 }
 
 /* ========================================

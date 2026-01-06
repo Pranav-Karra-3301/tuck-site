@@ -42,6 +42,14 @@ export default function Home() {
           <div className="showcase-container">
             <Terminal autoPlay />
           </div>
+          <a
+            href="https://www.metmuseum.org/art/collection/search/11314"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="painting-attribution hero-attribution"
+          >
+            Lake George, Free Study, John Frederick Kensett, c. 1872
+          </a>
         </div>
       </section>
 
@@ -51,6 +59,13 @@ export default function Home() {
         description="Smart category detection organizes your configs automatically. Add multiple files at once with intelligent symlink management that keeps everything in sync."
         command="tuck add ~/.zshrc ~/.gitconfig"
         link={{ text: "Learn about tracking", href: "#commands" }}
+        painting={{
+          src: "/paintings/heart-of-the-andes.jpeg",
+          title: "Heart of the Andes",
+          artist: "Frederic Edwin Church",
+          year: "1859",
+          metUrl: "https://www.metmuseum.org/art/collection/search/10481",
+        }}
       />
 
       <FeatureShowcase
@@ -59,6 +74,13 @@ export default function Home() {
         command="tuck status"
         reversed
         link={{ text: "View all commands", href: "#commands" }}
+        painting={{
+          src: "/paintings/the-gulf-stream.jpeg",
+          title: "The Gulf Stream",
+          artist: "Winslow Homer",
+          year: "1899",
+          metUrl: "https://www.metmuseum.org/art/collection/search/11122",
+        }}
       />
 
       <FeatureShowcase
@@ -66,6 +88,13 @@ export default function Home() {
         description="Detect changes, commit, and push to your remote - all in one command. No more manual git workflows, just run sync and you're done."
         command="tuck sync"
         link={{ text: "See how sync works", href: "#commands" }}
+        painting={{
+          src: "/paintings/rocky-mountains-landers-peak.jpeg",
+          title: "The Rocky Mountains, Lander's Peak",
+          artist: "Albert Bierstadt",
+          year: "1863",
+          metUrl: "https://www.metmuseum.org/art/collection/search/10154",
+        }}
       />
 
       <FeatureShowcase
@@ -74,6 +103,13 @@ export default function Home() {
         command="tuck apply username"
         reversed
         link={{ text: "Learn about apply", href: "#commands" }}
+        painting={{
+          src: "/paintings/wyoming-valley-pennsylvania.jpeg",
+          title: "Wyoming Valley, Pennsylvania",
+          artist: "Jasper Francis Cropsey",
+          year: "1864",
+          metUrl: "https://www.metmuseum.org/art/collection/search/10589",
+        }}
       />
 
       <FeatureShowcase
@@ -81,6 +117,13 @@ export default function Home() {
         description="Symlink or copy, your choice. Automatic backups before every operation mean you can always restore. SSH and GPG permissions are handled correctly."
         command="tuck restore --all"
         link={{ text: "Explore restore options", href: "#commands" }}
+        painting={{
+          src: "/paintings/hill-of-the-alhambra.jpeg",
+          title: "The Hill of the Alhambra, Granada",
+          artist: "Samuel Colman",
+          year: "1865",
+          metUrl: "https://www.metmuseum.org/art/collection/search/10508",
+        }}
       />
 
       {/* Install Section */}

@@ -2,6 +2,14 @@
 
 import Terminal from './Terminal';
 
+interface PaintingInfo {
+  src: string;
+  title: string;
+  artist: string;
+  year: string;
+  metUrl: string;
+}
+
 interface FeatureShowcaseProps {
   title: string;
   description: string;
@@ -11,6 +19,7 @@ interface FeatureShowcaseProps {
     text: string;
     href: string;
   };
+  painting?: PaintingInfo;
 }
 
 export default function FeatureShowcase({
@@ -19,7 +28,12 @@ export default function FeatureShowcase({
   command,
   reversed = false,
   link,
+  painting,
 }: FeatureShowcaseProps) {
+  const terminalStyle = painting
+    ? { backgroundImage: `url(${painting.src})` }
+    : undefined;
+
   return (
     <section className={`feature-showcase ${reversed ? 'reversed' : ''}`}>
       <div className="feature-showcase-content">
@@ -32,10 +46,23 @@ export default function FeatureShowcase({
             </a>
           )}
         </div>
-        <div className="feature-showcase-terminal">
+        <div
+          className={`feature-showcase-terminal ${painting ? 'has-painting' : ''}`}
+          style={terminalStyle}
+        >
           <div className="showcase-container">
             <Terminal command={command} static />
           </div>
+          {painting && (
+            <a
+              href={painting.metUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="painting-attribution"
+            >
+              {painting.title}, {painting.artist}, {painting.year}
+            </a>
+          )}
         </div>
       </div>
     </section>
