@@ -35,9 +35,9 @@ export const metadata: Metadata = {
     description: "Simple, fast, and built in TypeScript. Manage your dotfiles with Git, sync across machines, and never lose your configs again.",
     images: [
       {
-        url: "/tuck.png",
+        url: "/preview.png",
         width: 1200,
-        height: 1200,
+        height: 630,
         alt: "tuck - The Modern Dotfiles Manager",
         type: "image/png",
       },
@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     title: "tuck - The Modern Dotfiles Manager",
     description: "Simple, fast, and built in TypeScript. Manage your dotfiles with Git, sync across machines, and never lose your configs again.",
     creator: "@pranavkarra",
-    images: ["/tuck.png"],
+    images: ["/preview.png"],
   },
   robots: {
     index: true,
