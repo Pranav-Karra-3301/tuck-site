@@ -129,6 +129,64 @@ body {
 }
 
 /* ========================================
+   HEADER
+   ======================================== */
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: var(--spacing-md) var(--spacing-lg);
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.header-content {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  pointer-events: none;
+}
+
+.github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--text-secondary);
+  background: rgba(26, 26, 26, 0.95);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  pointer-events: auto;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.github-link:hover {
+  color: var(--text-primary);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.github-link:active {
+  transform: translateY(0);
+}
+
+.github-link svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* ========================================
    HERO SECTION
    ======================================== */
 
@@ -182,6 +240,67 @@ body {
   gap: 16px;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.hero-install {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.hero-code-block {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-inner);
+  padding: 14px 20px;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
+  transition: all 0.2s ease;
+}
+
+.hero-code-block:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(255, 107, 53, 0.1);
+}
+
+.hero-code-block code {
+  font-size: 16px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.hero-copy-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.hero-copy-btn:hover {
+  color: var(--accent);
+  background: rgba(255, 107, 53, 0.1);
+}
+
+.hero-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.hero-copy-btn[title="Copied!"] {
+  color: var(--success);
+}
+
+.hero-copy-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 /* Cursor-style showcase container */
@@ -869,11 +988,93 @@ body {
   margin: 0 auto;
   padding-top: var(--spacing-lg);
   border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
-.footer-bottom p {
+.footer-locations {
+  flex: 1;
+}
+
+.locations-text {
+  font-size: 16px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.location-name {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.location-map-container {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+
+.location-map {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.location-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background: #3b82f6;
+  border-radius: 50%;
+  box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.location-pin::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 5px;
+  height: 5px;
+  background: white;
+  border-radius: 50%;
+}
+
+@keyframes ping {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+.footer-copyright {
   font-size: 14px;
   color: var(--text-muted);
+  text-align: right;
+  white-space: nowrap;
+  margin: 0;
 }
 
 /* ========================================
@@ -938,6 +1139,20 @@ body {
 }
 
 @media (max-width: 768px) {
+  .site-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .github-link {
+    width: 40px;
+    height: 40px;
+  }
+
+  .github-link svg {
+    width: 20px;
+    height: 20px;
+  }
+
   .hero-section {
     padding: var(--spacing-lg) var(--spacing-md);
   }
@@ -1005,9 +1220,37 @@ body {
     flex-direction: column;
     gap: var(--spacing-sm);
   }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .footer-locations {
+    width: 100%;
+  }
+
+  .footer-copyright {
+    text-align: left;
+    width: 100%;
+  }
+
+  .locations-text {
+    font-size: 15px;
+  }
+
+  .location-map-container {
+    width: 45px;
+    height: 45px;
+  }
 }
 
 @media (max-width: 480px) {
+  .site-header {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
   .hero-buttons {
     flex-direction: column;
     width: 100%;
@@ -1016,6 +1259,21 @@ body {
   .btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .hero-code-block {
+    padding: 12px 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero-code-block code {
+    font-size: 14px;
+  }
+
+  .hero-copy-btn svg {
+    width: 16px;
+    height: 16px;
   }
 
   .footer-links {
@@ -1031,5 +1289,24 @@ body {
   .diagram-link {
     text-align: center;
     min-width: auto;
+  }
+
+  .locations-text {
+    font-size: 13px;
+  }
+
+  .location-map-container {
+    width: 40px;
+    height: 40px;
+  }
+
+  .location-pin {
+    width: 8px;
+    height: 8px;
+  }
+
+  .location-pin::before {
+    width: 4px;
+    height: 4px;
   }
 }
