@@ -1,8 +1,10 @@
 import Terminal from "./components/Terminal";
 import FeatureShowcase from "./components/FeatureShowcase";
+import CommandShowcase from "./components/CommandShowcase";
 import HeroInstall from "./components/HeroInstall";
 import ThemeToggle from "./components/ThemeToggle";
 import RotatingEarth from "./components/RotatingEarth";
+import CopyButton from "./components/CopyButton";
 
 export default function Home() {
   return (
@@ -56,7 +58,7 @@ export default function Home() {
       {/* Feature Showcases */}
       <FeatureShowcase
         title="Track any dotfile instantly"
-        description="Smart category detection organizes your configs automatically. Add multiple files at once with intelligent symlink management that keeps everything in sync."
+        description="Smart category detection organizes your configs automatically. Let tuck init and tuck sync discover files automatically, or use tuck add for manual control. Files are copied and organized by category."
         command="tuck add ~/.zshrc ~/.gitconfig"
         link={{ text: "Learn about tracking", href: "#commands" }}
         painting={{
@@ -85,7 +87,7 @@ export default function Home() {
 
       <FeatureShowcase
         title="Sync with a single command"
-        description="Detect changes, commit, and push to your remote - all in one command. No more manual git workflows, just run sync and you're done."
+        description="Automatically detects changes AND new dotfiles on your system. Select what to track interactively, commit, and push - all in one command. Pulls from remote first if behind. No manual git workflows needed."
         command="tuck sync"
         link={{ text: "See how sync works", href: "#commands" }}
         painting={{
@@ -99,7 +101,7 @@ export default function Home() {
 
       <FeatureShowcase
         title="Apply dotfiles from anywhere"
-        description="Bootstrap a new machine in seconds. Just provide a GitHub username and tuck will clone, backup existing configs with Time Machine snapshots, and apply everything automatically."
+        description="Bootstrap a new machine in seconds. Just provide a GitHub username and tuck will clone their dotfiles, create Time Machine backup snapshots of your existing configs, and apply with smart merging that preserves your local customizations."
         command="tuck apply username"
         reversed
         link={{ text: "Learn about apply", href: "#commands" }}
@@ -152,123 +154,119 @@ export default function Home() {
           <div className="install-step">
             <div className="step-number">2</div>
             <div className="step-content">
-              <h3>Initialize</h3>
+              <h3>Initialize (does everything!)</h3>
               <div className="code-block">
                 <code>tuck init</code>
               </div>
-              <p className="step-note">Creates ~/.dotfiles with Git tracking</p>
+              <p className="step-note">Scans your dotfiles, select what to track, syncs to GitHub</p>
             </div>
           </div>
           <div className="install-step">
             <div className="step-number">3</div>
             <div className="step-content">
-              <h3>Add your dotfiles</h3>
+              <h3>Keep in sync (ongoing)</h3>
               <div className="code-block">
-                <code>tuck add ~/.zshrc ~/.gitconfig ~/.vimrc</code>
+                <code>tuck sync</code>
               </div>
-              <p className="step-note">Files are moved and symlinked automatically</p>
-            </div>
-          </div>
-          <div className="install-step">
-            <div className="step-number">4</div>
-            <div className="step-content">
-              <h3>Sync everywhere</h3>
-              <div className="code-block">
-                <code>tuck push</code>
-              </div>
-              <p className="step-note">Commit and push to your remote</p>
+              <p className="step-note">Run anytime - detects changes, finds new files, pushes updates</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Commands Section */}
-      <section id="commands" className="commands-section">
-        <div className="section-header">
-          <h2 className="section-title">Commands</h2>
-          <p className="section-subtitle">Everything you need, nothing you don't</p>
-        </div>
-        <div className="commands-grid">
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck init</code>
-            </div>
-            <p className="command-description">
-              Initialize tuck in the current directory or ~/.dotfiles.
-              Sets up Git tracking and creates config file.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--path &lt;dir&gt;</span>
-              <span className="flag">--bare</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck add &lt;files&gt;</code>
-            </div>
-            <p className="command-description">
-              Add files to be tracked. Moves files to dotfiles directory
-              and creates symlinks in original location.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--copy</span>
-              <span className="flag">--no-link</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck status</code>
-            </div>
-            <p className="command-description">
-              Show the status of all tracked files. Displays link status,
-              modifications, and sync state.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--verbose</span>
-              <span className="flag">--json</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck link</code>
-            </div>
-            <p className="command-description">
-              Create symlinks for all tracked files. Useful when setting
-              up on a new machine.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--force</span>
-              <span className="flag">--dry-run</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck push</code>
-            </div>
-            <p className="command-description">
-              Stage all changes, commit with a message, and push to remote.
-              One command to sync everything.
-            </p>
-            <div className="command-flags">
-              <span className="flag">-m &lt;message&gt;</span>
-              <span className="flag">--no-push</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck pull</code>
-            </div>
-            <p className="command-description">
-              Pull latest changes from remote and re-link any new or
-              updated dotfiles automatically.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--rebase</span>
-              <span className="flag">--no-link</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <div id="commands">
+        {/* Core Commands */}
+        <CommandShowcase
+          title="Core Commands"
+          description="What 99% of users need. Initialize, sync, and check status - the essential workflow for managing your dotfiles."
+          commands={[
+            {
+              name: "tuck init",
+              description: "Set up tuck, scan for dotfiles, select what to track, and sync - all in one. Creates ~/.tuck directory with Git tracking.",
+              flags: ["-d, --dir <path>", "--from <url>"]
+            },
+            {
+              name: "tuck sync",
+              description: "Detect changes, find new files, and push to remote. Pulls first if behind, scans for new dotfiles, commits and pushes.",
+              flags: ["--no-commit", "--no-push", "--no-scan"]
+            },
+            {
+              name: "tuck status",
+              description: "See what's tracked and what's changed. Shows branch info, sync status, and all tracked files by category.",
+              flags: ["--short", "--json"]
+            }
+          ]}
+          painting={{
+            src: "/paintings/lake-george-free-study.webp",
+            title: "Lake George, Free Study",
+            artist: "John Frederick Kensett",
+            year: "c. 1872",
+            metUrl: "https://www.metmuseum.org/art/collection/search/11314"
+          }}
+        />
+
+        {/* Backup Commands */}
+        <CommandShowcase
+          title="Backup Commands"
+          description="Fine-grained control for creating and managing your dotfile backups. Add files, discover new ones, and sync manually."
+          reversed
+          commands={[
+            {
+              name: "tuck add <files>",
+              description: "Manually track specific files. Copies files to ~/.tuck organized by category (shell, git, editors, etc).",
+              flags: ["-c, --category", "--symlink"]
+            },
+            {
+              name: "tuck scan",
+              description: "Discover dotfiles on your system without syncing. Interactive selection for which files to track.",
+              flags: ["-q, --quick", "-c, --category"]
+            },
+            {
+              name: "tuck push / pull",
+              description: "Manual git operations. Push commits to remote or pull latest changes. Use tuck sync for automated workflow.",
+              flags: ["--force", "--rebase"]
+            }
+          ]}
+          painting={{
+            src: "/paintings/rocky-mountains-landers-peak.webp",
+            title: "The Rocky Mountains, Lander's Peak",
+            artist: "Albert Bierstadt",
+            year: "1863",
+            metUrl: "https://www.metmuseum.org/art/collection/search/10154"
+          }}
+        />
+
+        {/* Restore Commands */}
+        <CommandShowcase
+          title="Restore Commands"
+          description="Apply dotfiles from others, restore your own, or undo changes. Everything you need to use your backups across machines."
+          commands={[
+            {
+              name: "tuck apply <user>",
+              description: "Apply dotfiles from any GitHub user's repository. Smart merging preserves your local customizations.",
+              flags: ["--merge", "--replace"]
+            },
+            {
+              name: "tuck restore",
+              description: "Restore dotfiles from ~/.tuck to your system. Useful when setting up on a new machine.",
+              flags: ["--all", "--dry-run"]
+            },
+            {
+              name: "tuck undo",
+              description: "Restore files from Time Machine backup snapshots. Created automatically when using tuck apply.",
+              flags: ["--list", "--latest"]
+            }
+          ]}
+          painting={{
+            src: "/paintings/hill-of-the-alhambra.webp",
+            title: "The Hill of the Alhambra, Granada",
+            artist: "Samuel Colman",
+            year: "1865",
+            metUrl: "https://www.metmuseum.org/art/collection/search/10508"
+          }}
+        />
+      </div>
 
       {/* How It Works Section */}
       <section className="how-section">
@@ -276,31 +274,31 @@ export default function Home() {
           <div className="how-text">
             <h2 className="section-title">How it works</h2>
             <p className="how-description">
-              tuck uses a simple approach: your dotfiles live in a central
-              directory (usually ~/.dotfiles), tracked by Git. Symlinks
-              connect them to their expected locations.
+              tuck stores your dotfiles in ~/.tuck, organized by category.
+              When you run tuck init, it scans your system and lets you 
+              choose which files to track. Run tuck sync anytime to 
+              detect changes and sync to your remote.
             </p>
             <div className="how-diagram">
               <div className="diagram-item">
                 <span className="diagram-file">~/.zshrc</span>
                 <span className="diagram-arrow">→</span>
-                <span className="diagram-link">~/.dotfiles/zshrc</span>
+                <span className="diagram-link">~/.tuck/files/shell/zshrc</span>
               </div>
               <div className="diagram-item">
                 <span className="diagram-file">~/.gitconfig</span>
                 <span className="diagram-arrow">→</span>
-                <span className="diagram-link">~/.dotfiles/gitconfig</span>
+                <span className="diagram-link">~/.tuck/files/git/gitconfig</span>
               </div>
               <div className="diagram-item">
                 <span className="diagram-file">~/.config/nvim</span>
                 <span className="diagram-arrow">→</span>
-                <span className="diagram-link">~/.dotfiles/nvim</span>
+                <span className="diagram-link">~/.tuck/files/editors/nvim</span>
               </div>
             </div>
             <p className="how-note">
-              When you run <code>tuck push</code>, changes are committed
-              and pushed to your Git remote. On a new machine, just clone
-              and run <code>tuck link</code>.
+              Run <code>tuck sync</code> to detect changes and push to remote.
+              On a new machine: <code>tuck init --from &lt;repo-url&gt;</code> or <code>tuck apply username</code>
             </p>
           </div>
         </div>
@@ -311,6 +309,24 @@ export default function Home() {
         <div className="community-content">
           <div className="community-text">
             <h2 className="section-title">Built with the open source community</h2>
+            <div className="community-buttons">
+              <a
+                href="https://github.com/Pranav-Karra-3301/tuck"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="community-button"
+              >
+                Contribute to tuck
+              </a>
+              <a
+                href="https://github.com/Pranav-Karra-3301/tuck-site"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="community-button secondary"
+              >
+                Help improve this website
+              </a>
+            </div>
           </div>
           <div className="community-globe">
             <RotatingEarth width={500} height={500} />
@@ -318,19 +334,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <h2 className="cta-title">Ready to tuck in your dotfiles?</h2>
-        <p className="cta-description">
-          Join developers who never lose their configs again.
-        </p>
-        <div className="cta-buttons">
-          <a href="#install" className="btn btn-primary btn-large">
-            Install tuck
-          </a>
-          <a href="https://github.com/Pranav-Karra-3301/tuck" className="btn btn-ghost">
-            Star on GitHub
-          </a>
+      {/* Install Section */}
+      <section className="install-section">
+        <h2 className="section-title">Install tuck</h2>
+        <p className="install-subtitle">Choose your preferred method</p>
+        <div className="install-methods">
+          <div className="install-method">
+            <span className="install-label">npm</span>
+            <div className="code-block">
+              <code>npm install -g @prnv/tuck</code>
+              <CopyButton text="npm install -g @prnv/tuck" />
+            </div>
+          </div>
+          <div className="install-method">
+            <span className="install-label">brew</span>
+            <div className="code-block">
+              <code>brew install prnv/tap/tuck</code>
+              <CopyButton text="brew install prnv/tap/tuck" />
+            </div>
+          </div>
+          <div className="install-method">
+            <span className="install-label">curl</span>
+            <div className="code-block">
+              <code>curl -fsSL https://tuck.sh/install.sh | bash</code>
+              <CopyButton text="curl -fsSL https://tuck.sh/install.sh | bash" />
+            </div>
+          </div>
         </div>
       </section>
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import * as d3 from "d3"
+import { useTheme } from "./ThemeProvider"
 
 interface RotatingEarthProps {
   width?: number
@@ -13,6 +14,14 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { resolvedTheme } = useTheme()
+  const renderRef = useRef<(() => void) | null>(null)
+  const themeRef = useRef(resolvedTheme)
+  
+  // Keep theme ref in sync
+  useEffect(() => {
+    themeRef.current = resolvedTheme
+  }, [resolvedTheme])
 
   useEffect(() => {
     if (!canvasRef.current) return
@@ -139,12 +148,19 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
       const currentScale = projection.scale()
       const scaleFactor = currentScale / radius
 
+      // Theme-aware colors - read from ref to get current theme
+      const isLight = themeRef.current === 'light'
+      const oceanColor = isLight ? "#F7F7F4" : "#000000"
+      const strokeColor = isLight ? "#1a1a1a" : "#ffffff"
+      const dotColor = isLight ? "#666666" : "#999999"
+      const circleStrokeColor = isLight ? "#ffffff" : "#000000"
+
       // Draw ocean (globe background)
       context.beginPath()
       context.arc(containerWidth / 2, containerHeight / 2, currentScale, 0, 2 * Math.PI)
-      context.fillStyle = "#000000"
+      context.fillStyle = oceanColor
       context.fill()
-      context.strokeStyle = "#ffffff"
+      context.strokeStyle = circleStrokeColor
       context.lineWidth = 2 * scaleFactor
       context.stroke()
 
@@ -153,7 +169,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
         const graticule = d3.geoGraticule()
         context.beginPath()
         path(graticule())
-        context.strokeStyle = "#ffffff"
+        context.strokeStyle = strokeColor
         context.lineWidth = 1 * scaleFactor
         context.globalAlpha = 0.25
         context.stroke()
@@ -164,7 +180,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
         landFeatures.features.forEach((feature: any) => {
           path(feature)
         })
-        context.strokeStyle = "#ffffff"
+        context.strokeStyle = strokeColor
         context.lineWidth = 1 * scaleFactor
         context.stroke()
 
@@ -180,7 +196,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
           ) {
             context.beginPath()
             context.arc(projected[0], projected[1], 1.2 * scaleFactor, 0, 2 * Math.PI)
-            context.fillStyle = "#999999"
+            context.fillStyle = dotColor
             context.fill()
           }
         })
@@ -211,6 +227,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
         console.log(`[v0] Total dots generated: ${totalDots} across ${landFeatures.features.length} land features`)
 
         render()
+        renderRef.current = render
         setIsLoading(false)
       } catch (err) {
         setError("Failed to load land map data")
@@ -219,7 +236,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
     }
 
     // Set up rotation and interaction
-    const rotation: [number, number] = [0, 0]
+    const rotation: [number, number] = [0, -30]
     let autoRotate = true
     const rotationSpeed = 0.15
 
@@ -275,8 +292,16 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
     return () => {
       rotationTimer.stop()
       canvas.removeEventListener("mousedown", handleMouseDown)
+      renderRef.current = null
     }
   }, [width, height])
+
+  // Re-render when theme changes
+  useEffect(() => {
+    if (renderRef.current) {
+      renderRef.current()
+    }
+  }, [resolvedTheme])
 
   if (error) {
     return (
