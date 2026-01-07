@@ -4,6 +4,7 @@ import CommandShowcase from "./components/CommandShowcase";
 import HeroInstall from "./components/HeroInstall";
 import ThemeToggle from "./components/ThemeToggle";
 import RotatingEarth from "./components/RotatingEarth";
+import CopyButton from "./components/CopyButton";
 
 export default function Home() {
   return (
@@ -333,19 +334,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="cta-section">
-        <h2 className="cta-title">Ready to tuck in your dotfiles?</h2>
-        <p className="cta-description">
-          Join developers who never lose their configs again.
-        </p>
-        <div className="cta-buttons">
-          <a href="#install" className="btn btn-primary btn-large">
-            Install tuck
-          </a>
-          <a href="https://github.com/Pranav-Karra-3301/tuck" className="btn btn-ghost">
-            Star on GitHub
-          </a>
+      {/* Install Section */}
+      <section className="install-section">
+        <h2 className="section-title">Install tuck</h2>
+        <p className="install-subtitle">Choose your preferred method</p>
+        <div className="install-methods">
+          <div className="install-method">
+            <span className="install-label">npm</span>
+            <div className="code-block">
+              <code>npm install -g @prnv/tuck</code>
+              <CopyButton text="npm install -g @prnv/tuck" />
+            </div>
+          </div>
+          <div className="install-method">
+            <span className="install-label">brew</span>
+            <div className="code-block">
+              <code>brew install prnv/tap/tuck</code>
+              <CopyButton text="brew install prnv/tap/tuck" />
+            </div>
+          </div>
+          <div className="install-method">
+            <span className="install-label">curl</span>
+            <div className="code-block">
+              <code>curl -fsSL https://tuck.sh/install.sh | bash</code>
+              <CopyButton text="curl -fsSL https://tuck.sh/install.sh | bash" />
+            </div>
+          </div>
         </div>
       </section>
 
