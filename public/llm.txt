@@ -1,0 +1,195 @@
+# tuck - Modern Dotfiles Manager
+
+> This file provides structured information about tuck for LLMs and AI assistants.
+
+## Overview
+
+tuck is a modern, TypeScript-based dotfiles manager with a beautiful CLI. It helps developers manage, sync, and share their configuration files across machines using Git.
+
+Website: https://tuck.sh
+GitHub: https://github.com/Pranav-Karra-3301/tuck
+npm: https://www.npmjs.com/package/@prnv/tuck
+License: MIT
+
+## Installation
+
+```bash
+# npm (recommended)
+npm install -g @prnv/tuck
+
+# Homebrew (macOS)
+brew install prnv/tap/tuck
+
+# curl (direct binary)
+curl -fsSL https://tuck.sh/install.sh | bash
+```
+
+## Core Commands
+
+### tuck init
+Initialize tuck and set up dotfile tracking.
+- Creates ~/.tuck directory with Git tracking
+- Scans system for existing dotfiles
+- Interactive selection of files to track
+- Flags: `-d, --dir <path>`, `--from <url>`
+
+### tuck sync
+The all-in-one sync command.
+- Detects changes in tracked files
+- Scans for new dotfiles on system
+- Interactive selection for new files
+- Pulls from remote if behind
+- Commits and pushes changes
+- Flags: `--no-commit`, `--no-push`, `--no-scan`
+
+### tuck status
+Show current tracking status.
+- Branch and sync information
+- Lists all tracked files by category
+- Shows modified files
+- Flags: `--short`, `--json`
+
+### tuck add <files>
+Manually track specific files.
+- Copies files to ~/.tuck
+- Auto-categorizes (shell, git, editors, terminal, ssh, misc)
+- Flags: `-c, --category`, `--symlink`
+
+### tuck scan
+Discover dotfiles without syncing.
+- Scans common dotfile locations
+- Interactive selection interface
+- Flags: `-q, --quick`, `-c, --category`
+
+### tuck push / tuck pull
+Manual git operations.
+- Push commits to remote
+- Pull latest changes
+- Flags: `--force`, `--rebase`
+
+### tuck apply <username>
+Apply dotfiles from any GitHub user.
+- Clones user's dotfiles repository
+- Creates Time Machine backup snapshots
+- Smart merging preserves local customizations
+- Flags: `--merge`, `--replace`
+
+### tuck restore
+Restore dotfiles from ~/.tuck to system.
+- Useful for new machine setup
+- Creates symlinks or copies
+- Flags: `--all`, `--dry-run`
+
+### tuck undo
+Restore from Time Machine backups.
+- Lists available backup snapshots
+- Restores previous file versions
+- Flags: `--list`, `--latest`
+
+## How It Works
+
+tuck stores dotfiles in `~/.tuck`, organized by category:
+
+```
+~/.tuck/
+├── files/
+│   ├── shell/      # .zshrc, .bashrc, .profile
+│   ├── git/        # .gitconfig, .gitignore_global
+│   ├── editors/    # .vimrc, nvim config, .emacs
+│   ├── terminal/   # .tmux.conf, alacritty, kitty
+│   ├── ssh/        # ssh config (not keys)
+│   └── misc/       # everything else
+├── .tuckmanifest.json  # Tracks all managed files
+├── .tuckrc.json        # Configuration
+└── README.md
+```
+
+When you run `tuck add ~/.zshrc`:
+1. File is copied to `~/.tuck/files/shell/zshrc`
+2. Entry added to manifest with source path and checksum
+3. Run `tuck sync` to commit and push
+
+## Configuration
+
+Located at `~/.tuck/.tuckrc.json`:
+
+```json
+{
+  "repository": {
+    "path": "~/.tuck",
+    "defaultBranch": "main",
+    "autoCommit": true,
+    "autoPush": false
+  },
+  "files": {
+    "strategy": "copy",
+    "backupOnRestore": true,
+    "backupDir": "~/.tuck-backups"
+  },
+  "ui": {
+    "colors": true,
+    "emoji": true,
+    "verbose": false
+  }
+}
+```
+
+File strategies:
+- **copy** (default): Files copied to repo, changes require `tuck sync`
+- **symlink**: System files replaced with symlinks, changes immediate
+
+## Common Workflows
+
+### New User Setup
+```bash
+tuck init                    # Initialize and scan for dotfiles
+tuck sync                    # Commit and push to remote
+```
+
+### Daily Use
+```bash
+tuck sync                    # Detect changes, scan for new files, push
+# or
+tuck status                  # Check what's changed
+tuck push                    # Push changes manually
+```
+
+### New Machine Setup
+```bash
+tuck init --from github.com/username/dotfiles
+tuck restore --all
+```
+
+### Apply Someone Else's Dotfiles
+```bash
+tuck apply username          # Apply from GitHub user
+tuck undo --latest           # Revert if needed
+```
+
+## Key Features
+
+- **Beautiful CLI**: Gorgeous prompts, spinners, and colors via @clack/prompts
+- **Git-native**: Uses git under the hood, abstracts complexity
+- **Auto-categorization**: Smart detection of dotfile types
+- **Safe**: Never overwrites without confirmation, automatic backups
+- **Time Machine Integration**: Automatic snapshots before applying changes
+- **Cross-platform**: Works on macOS and Linux
+- **Fast**: Written in TypeScript, runs on Node.js 18+
+
+## Technical Details
+
+- Runtime: Node.js 18+
+- Language: TypeScript
+- Package: @prnv/tuck
+- Binary name: tuck
+- Config location: ~/.tuck/.tuckrc.json
+- Manifest: ~/.tuck/.tuckmanifest.json
+
+## Support
+
+- GitHub Issues: https://github.com/Pranav-Karra-3301/tuck/issues
+- Website: https://tuck.sh
+
+## About This File
+
+This llm.txt file follows the convention of providing machine-readable information about a project for AI assistants. It is located at https://tuck.sh/llm.txt

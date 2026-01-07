@@ -382,6 +382,7 @@ export default function Home() {
               <a href="https://github.com/Pranav-Karra-3301/tuck">GitHub</a>
               <a href="https://github.com/Pranav-Karra-3301/tuck/issues">Issues</a>
               <a href="https://github.com/Pranav-Karra-3301/tuck#readme">Docs</a>
+              <a href="/llm.txt">llm.txt</a>
             </div>
             <div className="footer-column">
               <h4>Connect</h4>
