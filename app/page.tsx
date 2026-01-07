@@ -1,5 +1,6 @@
 import Terminal from "./components/Terminal";
 import FeatureShowcase from "./components/FeatureShowcase";
+import CommandShowcase from "./components/CommandShowcase";
 import HeroInstall from "./components/HeroInstall";
 import ThemeToggle from "./components/ThemeToggle";
 import RotatingEarth from "./components/RotatingEarth";
@@ -173,146 +174,98 @@ export default function Home() {
       </section>
 
       {/* Commands Section */}
-      <section id="commands" className="commands-section">
-        <div className="section-header">
-          <h2 className="section-title">Commands</h2>
-          <p className="section-subtitle">Everything you need, nothing you don't</p>
-        </div>
-        
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h3 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1rem', color: 'var(--text)', textAlign: 'left' }}>Core Commands</h3>
-          <p style={{ marginBottom: '2rem', color: 'var(--text-secondary)', textAlign: 'left' }}>What 99% of users need</p>
-        </div>
-        
-        <div className="commands-grid">
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck init</code>
-            </div>
-            <p className="command-description">
-              Set up tuck, scan for dotfiles, select what to track, and sync - all in one.
-              Creates ~/.tuck directory with Git tracking.
-            </p>
-            <div className="command-flags">
-              <span className="flag">-d, --dir &lt;path&gt;</span>
-              <span className="flag">--from &lt;url&gt;</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck sync</code>
-            </div>
-            <p className="command-description">
-              Detect changes, find new files, and push to remote - all in one.
-              Pulls first if behind, scans for new dotfiles, commits and pushes.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--no-commit</span>
-              <span className="flag">--no-push</span>
-              <span className="flag">--no-scan</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck status</code>
-            </div>
-            <p className="command-description">
-              See what's tracked and what's changed. Shows branch info,
-              sync status, and all tracked files by category.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--short</span>
-              <span className="flag">--json</span>
-            </div>
-          </div>
-        </div>
+      <div id="commands">
+        {/* Core Commands */}
+        <CommandShowcase
+          title="Core Commands"
+          description="What 99% of users need. Initialize, sync, and check status - the essential workflow for managing your dotfiles."
+          commands={[
+            {
+              name: "tuck init",
+              description: "Set up tuck, scan for dotfiles, select what to track, and sync - all in one. Creates ~/.tuck directory with Git tracking.",
+              flags: ["-d, --dir <path>", "--from <url>"]
+            },
+            {
+              name: "tuck sync",
+              description: "Detect changes, find new files, and push to remote. Pulls first if behind, scans for new dotfiles, commits and pushes.",
+              flags: ["--no-commit", "--no-push", "--no-scan"]
+            },
+            {
+              name: "tuck status",
+              description: "See what's tracked and what's changed. Shows branch info, sync status, and all tracked files by category.",
+              flags: ["--short", "--json"]
+            }
+          ]}
+          painting={{
+            src: "/paintings/lake-george-free-study.webp",
+            title: "Lake George, Free Study",
+            artist: "John Frederick Kensett",
+            year: "c. 1872",
+            metUrl: "https://www.metmuseum.org/art/collection/search/11314"
+          }}
+        />
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <h3 style={{ fontSize: '1.5rem', fontWeight: 600, marginTop: '3rem', marginBottom: '1rem', color: 'var(--text)', textAlign: 'left' }}>Fine-grained Control</h3>
-          <p style={{ marginBottom: '2rem', color: 'var(--text-secondary)', textAlign: 'left' }}>Advanced commands for manual operations</p>
-        </div>
+        {/* Backup Commands */}
+        <CommandShowcase
+          title="Backup Commands"
+          description="Fine-grained control for creating and managing your dotfile backups. Add files, discover new ones, and sync manually."
+          reversed
+          commands={[
+            {
+              name: "tuck add <files>",
+              description: "Manually track specific files. Copies files to ~/.tuck organized by category (shell, git, editors, etc).",
+              flags: ["-c, --category", "--symlink"]
+            },
+            {
+              name: "tuck scan",
+              description: "Discover dotfiles on your system without syncing. Interactive selection for which files to track.",
+              flags: ["-q, --quick", "-c, --category"]
+            },
+            {
+              name: "tuck push / pull",
+              description: "Manual git operations. Push commits to remote or pull latest changes. Use tuck sync for automated workflow.",
+              flags: ["--force", "--rebase"]
+            }
+          ]}
+          painting={{
+            src: "/paintings/rocky-mountains-landers-peak.webp",
+            title: "The Rocky Mountains, Lander's Peak",
+            artist: "Albert Bierstadt",
+            year: "1863",
+            metUrl: "https://www.metmuseum.org/art/collection/search/10154"
+          }}
+        />
 
-        <div className="commands-grid">
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck add &lt;files&gt;</code>
-            </div>
-            <p className="command-description">
-              Manually track specific files. Copies files to ~/.tuck
-              organized by category (shell, git, editors, etc).
-            </p>
-            <div className="command-flags">
-              <span className="flag">-c, --category</span>
-              <span className="flag">--symlink</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck scan</code>
-            </div>
-            <p className="command-description">
-              Discover dotfiles on your system without syncing.
-              Interactive selection for which files to track.
-            </p>
-            <div className="command-flags">
-              <span className="flag">-q, --quick</span>
-              <span className="flag">-c, --category</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck push / pull</code>
-            </div>
-            <p className="command-description">
-              Manual git operations. Push commits to remote or pull
-              latest changes. Use tuck sync for automated workflow.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--force</span>
-              <span className="flag">--rebase</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck apply &lt;user&gt;</code>
-            </div>
-            <p className="command-description">
-              Apply dotfiles from any GitHub user's repository.
-              Smart merging preserves your local customizations.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--merge</span>
-              <span className="flag">--replace</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck restore</code>
-            </div>
-            <p className="command-description">
-              Restore dotfiles from ~/.tuck to your system.
-              Useful when setting up on a new machine.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--all</span>
-              <span className="flag">--dry-run</span>
-            </div>
-          </div>
-          <div className="command-card">
-            <div className="command-header">
-              <code className="command-name">tuck undo</code>
-            </div>
-            <p className="command-description">
-              Restore files from Time Machine backup snapshots.
-              Created automatically when using tuck apply.
-            </p>
-            <div className="command-flags">
-              <span className="flag">--list</span>
-              <span className="flag">--latest</span>
-            </div>
-          </div>
-        </div>
-      </section>
+        {/* Restore Commands */}
+        <CommandShowcase
+          title="Restore Commands"
+          description="Apply dotfiles from others, restore your own, or undo changes. Everything you need to use your backups across machines."
+          commands={[
+            {
+              name: "tuck apply <user>",
+              description: "Apply dotfiles from any GitHub user's repository. Smart merging preserves your local customizations.",
+              flags: ["--merge", "--replace"]
+            },
+            {
+              name: "tuck restore",
+              description: "Restore dotfiles from ~/.tuck to your system. Useful when setting up on a new machine.",
+              flags: ["--all", "--dry-run"]
+            },
+            {
+              name: "tuck undo",
+              description: "Restore files from Time Machine backup snapshots. Created automatically when using tuck apply.",
+              flags: ["--list", "--latest"]
+            }
+          ]}
+          painting={{
+            src: "/paintings/hill-of-the-alhambra.webp",
+            title: "The Hill of the Alhambra, Granada",
+            artist: "Samuel Colman",
+            year: "1865",
+            metUrl: "https://www.metmuseum.org/art/collection/search/10508"
+          }}
+        />
+      </div>
 
       {/* How It Works Section */}
       <section className="how-section">
