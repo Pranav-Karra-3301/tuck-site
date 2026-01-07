@@ -308,6 +308,24 @@ export default function Home() {
         <div className="community-content">
           <div className="community-text">
             <h2 className="section-title">Built with the open source community</h2>
+            <div className="community-buttons">
+              <a
+                href="https://github.com/Pranav-Karra-3301/tuck"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="community-button"
+              >
+                Contribute to tuck
+              </a>
+              <a
+                href="https://github.com/Pranav-Karra-3301/tuck-site"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="community-button secondary"
+              >
+                Help improve this website
+              </a>
+            </div>
           </div>
           <div className="community-globe">
             <RotatingEarth width={500} height={500} />
