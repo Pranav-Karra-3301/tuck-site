@@ -987,6 +987,10 @@ body {
     min-height: auto;
   }
 
+  .command-showcase.reversed .command-showcase-content {
+    grid-template-columns: 1fr;
+  }
+
   .command-showcase.reversed .command-showcase-text,
   .command-showcase.reversed .command-showcase-panel {
     order: unset;
