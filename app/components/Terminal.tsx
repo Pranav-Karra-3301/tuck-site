@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 interface OutputLine {
-  type: 'input' | 'output' | 'success' | 'error' | 'dim' | 'cyan' | 'yellow' | 'box' | 'empty' | 'spinner' | 'bold' | 'categories' | 'tree';
+  type: 'input' | 'output' | 'success' | 'error' | 'dim' | 'cyan' | 'yellow' | 'empty' | 'spinner' | 'bold' | 'tree' | 'box-start' | 'box-line' | 'box-end';
   content: string;
 }
 
@@ -31,11 +31,11 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'dim', content: '  $ shell: 4    ★ git: 2    › editors: 3' },
     { type: 'dim', content: '  # terminal: 2    ● misc: 1' },
     { type: 'empty', content: '' },
-    { type: 'box', content: '╭──────────────────────────────╮' },
-    { type: 'box', content: '│  ✓ Tuck initialized          │' },
-    { type: 'box', content: '│                              │' },
-    { type: 'box', content: '│  Next: tuck sync             │' },
-    { type: 'box', content: '╰──────────────────────────────╯' },
+    { type: 'box-start', content: '' },
+    { type: 'box-line', content: '✓ Tuck initialized' },
+    { type: 'box-line', content: '' },
+    { type: 'box-line', content: 'Next: tuck sync' },
+    { type: 'box-end', content: '' },
   ],
   'tuck add ~/.zshrc': [
     { type: 'cyan', content: '◆  tuck add' },
@@ -48,9 +48,9 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'success', content: '✓  Tracked 1 file' },
   ],
   'tuck status': [
-    { type: 'box', content: '╭────────────────────────────────╮' },
-    { type: 'box', content: '│ tuck · Modern Dotfiles Manager │' },
-    { type: 'box', content: '╰────────────────────────────────╯' },
+    { type: 'box-start', content: '' },
+    { type: 'box-line', content: 'tuck · Modern Dotfiles Manager' },
+    { type: 'box-end', content: '' },
     { type: 'empty', content: '' },
     { type: 'bold', content: 'Status:' },
     { type: 'empty', content: '' },
@@ -83,9 +83,9 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'spinner', content: '◐  Pushing to origin/main...' },
     { type: 'success', content: '✓  Pushed to origin/main' },
     { type: 'empty', content: '' },
-    { type: 'box', content: '╭─────────────────────────╮' },
-    { type: 'box', content: '│  ✓ Synced successfully  │' },
-    { type: 'box', content: '╰─────────────────────────╯' },
+    { type: 'box-start', content: '' },
+    { type: 'box-line', content: '✓ Synced successfully' },
+    { type: 'box-end', content: '' },
   ],
   'tuck push': [
     { type: 'cyan', content: '◆  tuck push' },
@@ -99,9 +99,9 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'cyan', content: '  tuck apply your-username' },
   ],
   'help': [
-    { type: 'box', content: '╭─────────────╮' },
-    { type: 'box', content: '│ tuck v1.5.0 │' },
-    { type: 'box', content: '╰─────────────╯' },
+    { type: 'box-start', content: '' },
+    { type: 'box-line', content: 'tuck v1.5.0' },
+    { type: 'box-end', content: '' },
     { type: 'empty', content: '' },
     { type: 'bold', content: 'Quick Start:' },
     { type: 'output', content: '  tuck init        Set up tuck' },
@@ -152,9 +152,9 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'spinner', content: '◐  Applying dotfiles...' },
     { type: 'success', content: '✓  Applied 5 files' },
     { type: 'empty', content: '' },
-    { type: 'box', content: '╭────────────────────────╮' },
-    { type: 'box', content: '│  ✓ Dotfiles applied!   │' },
-    { type: 'box', content: '╰────────────────────────╯' },
+    { type: 'box-start', content: '' },
+    { type: 'box-line', content: '✓ Dotfiles applied!' },
+    { type: 'box-end', content: '' },
   ],
   'tuck restore --all': [
     { type: 'cyan', content: '◆  tuck restore --all' },
@@ -173,9 +173,9 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'spinner', content: '◐  [4/4] ~/.config/nvim' },
     { type: 'success', content: '  ✓ [4/4] ~/.config/nvim' },
     { type: 'empty', content: '' },
-    { type: 'box', content: '╭────────────────────╮' },
-    { type: 'box', content: '│  ✓ Restored 4 files │' },
-    { type: 'box', content: '╰────────────────────╯' },
+    { type: 'box-start', content: '' },
+    { type: 'box-line', content: '✓ Restored 4 files' },
+    { type: 'box-end', content: '' },
   ],
 };
 
@@ -222,7 +222,6 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
     }
   }, [input]);
 
-  // Intersection Observer for scroll-triggered playback
   useEffect(() => {
     if (!playOnScroll || hasPlayed || autoPlay) return;
 
@@ -245,7 +244,6 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
     return () => observer.disconnect();
   }, [playOnScroll, hasPlayed, command, autoPlay]);
 
-  // Auto-play demo on mount
   useEffect(() => {
     if (autoPlay && !hasPlayed) {
       setHasPlayed(true);
@@ -261,7 +259,6 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
     }
   }, [autoPlay, hasPlayed]);
 
-  // Execute single command on mount (non-scroll mode)
   useEffect(() => {
     if (command && !autoPlay && !playOnScroll) {
       const runCommand = async () => {
@@ -383,6 +380,49 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
     }
   };
 
+  // Group consecutive box lines together for rendering
+  const renderLines = () => {
+    const result: React.ReactNode[] = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      const line = lines[i];
+
+      // Check if this is the start of a box
+      if (line.type === 'box-start') {
+        const boxLines: string[] = [];
+        i++; // Skip box-start
+
+        // Collect all box-line content
+        while (i < lines.length && lines[i].type === 'box-line') {
+          boxLines.push(lines[i].content);
+          i++;
+        }
+
+        // Skip box-end
+        if (i < lines.length && lines[i].type === 'box-end') {
+          i++;
+        }
+
+        // Render the box with CSS
+        result.push(
+          <div key={`box-${i}`} className="terminal-box">
+            {boxLines.map((content, idx) => (
+              <div key={idx} className="terminal-box-line">
+                {content || '\u00A0'}
+              </div>
+            ))}
+          </div>
+        );
+      } else {
+        result.push(renderLine(line, i));
+        i++;
+      }
+    }
+
+    return result;
+  };
+
   const renderLine = (line: OutputLine, idx: number) => {
     const isActiveSpinner = activeSpinnerIdx === idx;
 
@@ -416,10 +456,6 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
             {isActiveSpinner ? line.content : line.content.replace('◐', '✓')}
           </div>
         );
-      case 'box':
-        return <div key={idx} className="terminal-line terminal-box">{line.content}</div>;
-      case 'categories':
-        return <div key={idx} className="terminal-line terminal-categories">{line.content}</div>;
       case 'empty':
         return <div key={idx} className="terminal-line terminal-empty">&nbsp;</div>;
       default:
@@ -449,7 +485,7 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
         <div className="terminal-spacer"></div>
       </div>
       <div className="terminal-body" ref={terminalRef}>
-        {lines.map((line, idx) => renderLine(line, idx))}
+        {renderLines()}
         <div className="terminal-line terminal-input-line">
           <span className="terminal-prompt" ref={promptRef}>
             <span className="prompt-symbol">❯</span>

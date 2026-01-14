@@ -527,14 +527,23 @@ body {
   color: #a78bfa;
 }
 
-/* Box styles - cyan borders */
+/* CSS-based box styling for perfect alignment */
 .terminal-box {
-  color: #22d3ee;
+  display: inline-block;
+  border: 1px solid #22d3ee;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin: 4px 0;
+  min-width: 120px;
 }
 
-/* Categories line */
-.terminal-categories {
+.terminal-box-line {
   color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.terminal-box-line:first-child {
+  color: var(--text-primary);
 }
 
 /* Terminal prompt */
