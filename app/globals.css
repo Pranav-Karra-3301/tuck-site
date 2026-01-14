@@ -474,54 +474,75 @@ body {
   border-radius: 0 0 10px 0;
 }
 
-/* Terminal banner (ASCII art) */
-.terminal-banner {
-  font-size: 10px;
-  line-height: 1.1;
-  color: var(--accent);
-  margin: 0;
-  white-space: pre;
-  font-family: inherit;
-}
-
 /* Terminal lines */
 .terminal-line {
-  margin-bottom: 2px;
-  white-space: pre-wrap;
-  word-break: break-word;
+  margin-bottom: 0;
+  white-space: pre;
   color: var(--text-secondary);
+  line-height: 1.5;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+
+.terminal-empty {
+  height: 1.5em;
 }
 
 .terminal-success {
-  color: var(--success);
+  color: #22c55e;
 }
 
 .terminal-error {
-  color: var(--error);
+  color: #ef4444;
 }
 
 .terminal-cyan {
   color: #22d3ee;
 }
 
+.terminal-yellow {
+  color: #eab308;
+}
+
 .terminal-dim {
   color: var(--text-muted);
+  opacity: 0.7;
 }
 
-.terminal-progress {
-  color: var(--success);
+.terminal-bold {
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
+.terminal-tree {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+/* Spinner styling */
 .terminal-spinner {
   color: #a78bfa;
 }
 
-/* Box styles (for boxen-like output) */
-.terminal-box-border {
-  color: var(--success);
+.terminal-spinner.active {
+  color: #a78bfa;
 }
 
-.terminal-box-content {
+/* CSS-based box styling for perfect alignment */
+.terminal-box {
+  display: inline-block;
+  border: 1px solid #22d3ee;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin: 4px 0;
+  min-width: 120px;
+}
+
+.terminal-box-line {
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.terminal-box-line:first-child {
   color: var(--text-primary);
 }
 
@@ -692,9 +713,9 @@ body {
 .terminal-window.static {
   width: 100%;
   max-width: 560px;
-  height: 304px;
-  min-height: 304px;
-  max-height: 304px;
+  height: 380px;
+  min-height: 380px;
+  max-height: 380px;
   cursor: default;
   overflow: hidden;
 }
