@@ -31,7 +31,7 @@ Initialize tuck and set up dotfile tracking.
 - Creates ~/.tuck directory with Git tracking
 - Scans system for existing dotfiles
 - Interactive selection of files to track
-- Flags: `-d, --dir <path>`, `--from <url>`
+- Flags: `--from <url>`, `--bare`, `-r, --remote`
 
 ### tuck sync
 The all-in-one sync command.
@@ -40,7 +40,7 @@ The all-in-one sync command.
 - Interactive selection for new files
 - Pulls from remote if behind
 - Commits and pushes changes
-- Flags: `--no-commit`, `--no-push`, `--no-scan`
+- Flags: `--no-commit`, `--no-push`, `--no-scan`, `-m, --message`
 
 ### tuck status
 Show current tracking status.
@@ -49,42 +49,67 @@ Show current tracking status.
 - Shows modified files
 - Flags: `--short`, `--json`
 
+## Backup Commands
+
 ### tuck add <files>
 Manually track specific files.
 - Copies files to ~/.tuck
 - Auto-categorizes (shell, git, editors, terminal, ssh, misc)
-- Flags: `-c, --category`, `--symlink`
+- Flags: `-c, --category`, `--symlink`, `-f, --force`
 
-### tuck scan
-Discover dotfiles without syncing.
-- Scans common dotfile locations
-- Interactive selection interface
-- Flags: `-q, --quick`, `-c, --category`
+### tuck remove <files>
+Stop tracking dotfiles.
+- Optionally delete from repository
+- Keep original files intact
+- Flags: `--delete`, `--keep-original`
 
-### tuck push / tuck pull
-Manual git operations.
-- Push commits to remote
-- Pull latest changes
-- Flags: `--force`, `--rebase`
+### tuck list
+List all tracked files.
+- Filter by category
+- Output as JSON for scripting
+- Flags: `-c, --category`, `--paths`, `--json`
+
+## Restore Commands
 
 ### tuck apply <username>
 Apply dotfiles from any GitHub user.
 - Clones user's dotfiles repository
 - Creates Time Machine backup snapshots
 - Smart merging preserves local customizations
-- Flags: `--merge`, `--replace`
+- Flags: `--merge`, `--replace`, `--dry-run`
 
 ### tuck restore
 Restore dotfiles from ~/.tuck to system.
 - Useful for new machine setup
 - Creates symlinks or copies
-- Flags: `--all`, `--dry-run`
+- Flags: `--all`, `--dry-run`, `--symlink`
 
 ### tuck undo
 Restore from Time Machine backups.
 - Lists available backup snapshots
 - Restores previous file versions
-- Flags: `--list`, `--latest`
+- Flags: `--list`, `--latest`, `--file <path>`
+
+## Security & Config Commands
+
+### tuck secrets
+Manage local secrets for placeholder replacement.
+- Secure password prompting (values never in command line)
+- Scan files and git history for exposed secrets
+- Placeholder syntax: `{{SECRET_NAME}}`
+- Subcommands: `list`, `set <name>`, `scan`, `scan-history`
+
+### tuck config
+Customize tuck behavior.
+- Set default branch, file strategy, hooks
+- Edit configuration interactively
+- Subcommands: `get <key>`, `set <key> <value>`, `list`, `edit`
+
+### tuck diff
+Show differences between system files and repository.
+- Useful before syncing to review changes
+- Filter by category or show stats only
+- Flags: `--staged`, `--stat`, `--category`
 
 ## How It Works
 
@@ -101,6 +126,7 @@ tuck stores dotfiles in `~/.tuck`, organized by category:
 │   └── misc/       # everything else
 ├── .tuckmanifest.json  # Tracks all managed files
 ├── .tuckrc.json        # Configuration
+├── secrets.local.json  # Local secrets (never committed)
 └── README.md
 ```
 
@@ -130,6 +156,16 @@ Located at `~/.tuck/.tuckrc.json`:
     "colors": true,
     "emoji": true,
     "verbose": false
+  },
+  "hooks": {
+    "preSync": "",
+    "postSync": "",
+    "preRestore": "",
+    "postRestore": ""
+  },
+  "encryption": {
+    "enabled": false,
+    "gpgKey": ""
   }
 }
 ```
@@ -151,7 +187,7 @@ tuck sync                    # Commit and push to remote
 tuck sync                    # Detect changes, scan for new files, push
 # or
 tuck status                  # Check what's changed
-tuck push                    # Push changes manually
+tuck diff                    # Review changes before syncing
 ```
 
 ### New Machine Setup
@@ -166,6 +202,13 @@ tuck apply username          # Apply from GitHub user
 tuck undo --latest           # Revert if needed
 ```
 
+### Managing Secrets
+```bash
+tuck secrets set API_KEY     # Set a secret (prompts securely)
+tuck secrets scan            # Scan files for exposed secrets
+tuck secrets scan-history    # Check git history for leaks
+```
+
 ## Key Features
 
 - **Beautiful CLI**: Gorgeous prompts, spinners, and colors via @clack/prompts
@@ -173,6 +216,7 @@ tuck undo --latest           # Revert if needed
 - **Auto-categorization**: Smart detection of dotfile types
 - **Safe**: Never overwrites without confirmation, automatic backups
 - **Time Machine Integration**: Automatic snapshots before applying changes
+- **Secret Management**: Placeholder replacement, leak detection
 - **Cross-platform**: Works on macOS and Linux
 - **Fast**: Written in TypeScript, runs on Node.js 18+
 
@@ -184,6 +228,7 @@ tuck undo --latest           # Revert if needed
 - Binary name: tuck
 - Config location: ~/.tuck/.tuckrc.json
 - Manifest: ~/.tuck/.tuckmanifest.json
+- Secrets: ~/.tuck/secrets.local.json (never committed)
 
 ## Support
 

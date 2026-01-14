@@ -184,12 +184,12 @@ export default function Home() {
             {
               name: "tuck init",
               description: "Set up tuck, scan for dotfiles, select what to track, and sync - all in one. Creates ~/.tuck directory with Git tracking.",
-              flags: ["-d, --dir <path>", "--from <url>"]
+              flags: ["--from <url>", "--bare", "-r, --remote"]
             },
             {
               name: "tuck sync",
               description: "Detect changes, find new files, and push to remote. Pulls first if behind, scans for new dotfiles, commits and pushes.",
-              flags: ["--no-commit", "--no-push", "--no-scan"]
+              flags: ["--no-commit", "--no-push", "--no-scan", "-m, --message"]
             },
             {
               name: "tuck status",
@@ -215,17 +215,17 @@ export default function Home() {
             {
               name: "tuck add <files>",
               description: "Manually track specific files. Copies files to ~/.tuck organized by category (shell, git, editors, etc).",
-              flags: ["-c, --category", "--symlink"]
+              flags: ["-c, --category", "--symlink", "-f, --force"]
             },
             {
-              name: "tuck scan",
-              description: "Discover dotfiles on your system without syncing. Interactive selection for which files to track.",
-              flags: ["-q, --quick", "-c, --category"]
+              name: "tuck remove <files>",
+              description: "Stop tracking dotfiles. Optionally delete from repository or keep original files intact.",
+              flags: ["--delete", "--keep-original"]
             },
             {
-              name: "tuck push / pull",
-              description: "Manual git operations. Push commits to remote or pull latest changes. Use tuck sync for automated workflow.",
-              flags: ["--force", "--rebase"]
+              name: "tuck list",
+              description: "List all tracked files. Filter by category or output as JSON for scripting.",
+              flags: ["-c, --category", "--paths", "--json"]
             }
           ]}
           painting={{
@@ -245,17 +245,17 @@ export default function Home() {
             {
               name: "tuck apply <user>",
               description: "Apply dotfiles from any GitHub user's repository. Smart merging preserves your local customizations.",
-              flags: ["--merge", "--replace"]
+              flags: ["--merge", "--replace", "--dry-run"]
             },
             {
               name: "tuck restore",
               description: "Restore dotfiles from ~/.tuck to your system. Useful when setting up on a new machine.",
-              flags: ["--all", "--dry-run"]
+              flags: ["--all", "--dry-run", "--symlink"]
             },
             {
               name: "tuck undo",
               description: "Restore files from Time Machine backup snapshots. Created automatically when using tuck apply.",
-              flags: ["--list", "--latest"]
+              flags: ["--list", "--latest", "--file <path>"]
             }
           ]}
           painting={{
@@ -264,6 +264,37 @@ export default function Home() {
             artist: "Samuel Colman",
             year: "1865",
             metUrl: "https://www.metmuseum.org/art/collection/search/10508"
+          }}
+        />
+
+        {/* Security & Config Commands */}
+        <CommandShowcase
+          title="Security & Config"
+          description="Manage secrets safely and customize tuck to your workflow. Keep sensitive data out of git while staying productive."
+          reversed
+          commands={[
+            {
+              name: "tuck secrets",
+              description: "Manage local secrets for placeholder replacement. Scan files and git history for exposed secrets.",
+              flags: ["list", "set <name>", "scan", "scan-history"]
+            },
+            {
+              name: "tuck config",
+              description: "Customize tuck behavior - default branch, file strategy, hooks, and more.",
+              flags: ["get <key>", "set <key> <value>", "list", "edit"]
+            },
+            {
+              name: "tuck diff",
+              description: "Show differences between system files and repository. Useful before syncing.",
+              flags: ["--staged", "--stat", "--category"]
+            }
+          ]}
+          painting={{
+            src: "/paintings/wyoming-valley-pennsylvania.webp",
+            title: "Wyoming Valley, Pennsylvania",
+            artist: "Jasper Francis Cropsey",
+            year: "1864",
+            metUrl: "https://www.metmuseum.org/art/collection/search/10589"
           }}
         />
       </div>
