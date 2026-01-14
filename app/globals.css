@@ -474,21 +474,17 @@ body {
   border-radius: 0 0 10px 0;
 }
 
-/* Terminal banner (ASCII art) */
-.terminal-banner {
-  font-size: 10px;
-  line-height: 1.1;
-  color: #22d3ee;
-  white-space: pre;
-  font-family: inherit;
-}
-
 /* Terminal lines */
 .terminal-line {
-  margin-bottom: 1px;
+  margin-bottom: 0;
   white-space: pre;
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.5;
+  font-family: var(--font-jetbrains-mono), 'JetBrains Mono', 'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace;
+}
+
+.terminal-empty {
+  height: 1.5em;
 }
 
 .terminal-success {
@@ -504,11 +500,12 @@ body {
 }
 
 .terminal-yellow {
-  color: #facc15;
+  color: #eab308;
 }
 
 .terminal-dim {
   color: var(--text-muted);
+  opacity: 0.7;
 }
 
 .terminal-bold {
@@ -516,37 +513,21 @@ body {
   font-weight: 600;
 }
 
+.terminal-tree {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
 /* Spinner styling */
 .terminal-spinner {
   color: #a78bfa;
 }
 
-.terminal-spinner.spinning {
+.terminal-spinner.active {
   color: #a78bfa;
 }
 
-/* Intro line (cyan diamond) */
-.terminal-intro {
-  color: #22d3ee;
-  font-weight: 500;
-}
-
-/* Prompt lines (clack-style) */
-.terminal-prompt-line {
-  color: var(--text-muted);
-}
-
-.terminal-prompt-input {
-  color: var(--text-muted);
-}
-
-/* Divider line */
-.terminal-divider {
-  color: var(--text-muted);
-  opacity: 0.4;
-}
-
-/* Box styles - using cyan for borders */
+/* Box styles - cyan borders */
 .terminal-box {
   color: #22d3ee;
 }
