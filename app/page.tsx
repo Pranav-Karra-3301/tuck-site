@@ -389,6 +389,11 @@ export default function Home() {
               <a href="https://twitter.com/pranavkarra">Twitter</a>
               <a href="https://github.com/Pranav-Karra-3301">GitHub</a>
             </div>
+            <div className="footer-column">
+              <h4>Legal</h4>
+              <a href="/privacy">Privacy</a>
+              <a href="/terms">Terms</a>
+            </div>
           </div>
         </div>
 
