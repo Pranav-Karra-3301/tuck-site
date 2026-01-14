@@ -1008,6 +1008,10 @@ body {
     min-height: auto;
   }
 
+  .command-showcase.reversed .command-showcase-content {
+    grid-template-columns: 1fr;
+  }
+
   .command-showcase.reversed .command-showcase-text,
   .command-showcase.reversed .command-showcase-panel {
     order: unset;
@@ -1825,4 +1829,344 @@ body {
   .legal-text h2 {
     font-size: 1.25rem;
   }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+  /* Force light colors for print */
+  :root,
+  [data-theme="dark"],
+  [data-theme="light"] {
+    --bg-base: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-surface: #f5f5f5;
+    --text-primary: #000000;
+    --text-secondary: #333333;
+    --text-muted: #666666;
+    --accent: #000000;
+    --border: #cccccc;
+  }
+
+  /* Print typography - serif for readability */
+  body {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Code blocks stay monospace */
+  code,
+  .command-showcase-name,
+  .command-showcase-flag,
+  .diagram-file,
+  .diagram-link,
+  .code-block code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 10pt;
+  }
+
+  /* Headings */
+  h1, h2, h3, .hero-title, .section-title,
+  .feature-title, .command-showcase-title {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    color: black !important;
+    font-weight: bold;
+  }
+
+  .hero-title {
+    font-size: 28pt;
+  }
+
+  .section-title,
+  .feature-title,
+  .command-showcase-title {
+    font-size: 16pt;
+    margin-bottom: 8pt;
+  }
+
+  /* Hide interactive and decorative elements */
+  .site-header,
+  .theme-toggle,
+  .copy-btn,
+  .hero-copy-btn,
+  .terminal-window,
+  .community-globe,
+  .hero-showcase,
+  .footer-links,
+  .footer-bottom,
+  .community-buttons,
+  .feature-link,
+  .btn {
+    display: none !important;
+  }
+
+  /* Show print header */
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 24pt;
+    padding-bottom: 12pt;
+    border-bottom: 2px solid black;
+  }
+
+  .print-header h1 {
+    font-size: 32pt;
+    margin-bottom: 4pt;
+  }
+
+  .print-header .print-url {
+    font-size: 11pt;
+    color: #666;
+  }
+
+  .print-header .print-tagline {
+    font-size: 14pt;
+    font-style: italic;
+    margin-top: 4pt;
+  }
+
+  /* Remove all backgrounds and shadows */
+  .website-content,
+  .hero-section,
+  .feature-showcase,
+  .command-showcase,
+  .install-section,
+  .how-section,
+  .community-section,
+  .footer {
+    background: white !important;
+    box-shadow: none !important;
+    padding: 12pt 0 !important;
+  }
+
+  /* Remove painting backgrounds from panels */
+  .feature-showcase-terminal,
+  .command-showcase-panel {
+    background-image: none !important;
+    background: #f8f8f8 !important;
+    border: 1px solid #ccc !important;
+    min-height: auto !important;
+    padding: 12pt !important;
+  }
+
+  /* Hide painting attributions in print */
+  .painting-attribution {
+    display: none !important;
+  }
+
+  /* Single column layouts */
+  .hero-section,
+  .feature-showcase-content,
+  .command-showcase-content,
+  .community-content {
+    display: block !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .feature-showcase.reversed .feature-showcase-content,
+  .command-showcase.reversed .command-showcase-content {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Feature sections */
+  .feature-showcase {
+    page-break-inside: avoid;
+  }
+
+  .feature-text {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin-bottom: 12pt;
+  }
+
+  .feature-description {
+    font-size: 11pt;
+    color: #333 !important;
+  }
+
+  /* Command cards */
+  .command-showcase-cards {
+    max-width: 100% !important;
+  }
+
+  .command-showcase-card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    margin-bottom: 8pt;
+    page-break-inside: avoid;
+  }
+
+  .command-showcase-name {
+    color: black !important;
+    font-weight: bold;
+  }
+
+  .command-showcase-cmd-description {
+    font-size: 10pt;
+    color: #333 !important;
+  }
+
+  .command-showcase-flag {
+    background: #f0f0f0 !important;
+    border: 1px solid #ccc !important;
+    color: #333 !important;
+  }
+
+  /* Install section */
+  .install-steps {
+    display: block !important;
+  }
+
+  .install-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16pt;
+    page-break-inside: avoid;
+  }
+
+  .step-number {
+    background: black !important;
+    color: white !important;
+    min-width: 24pt;
+    height: 24pt;
+    font-size: 12pt;
+  }
+
+  .code-block {
+    background: #f5f5f5 !important;
+    border: 1px solid #ccc !important;
+    padding: 8pt !important;
+  }
+
+  .code-block code {
+    color: black !important;
+  }
+
+  /* Install methods */
+  .install-methods {
+    display: block !important;
+  }
+
+  .install-method {
+    margin-bottom: 12pt;
+    page-break-inside: avoid;
+  }
+
+  .install-label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 4pt;
+  }
+
+  /* How it works diagram */
+  .how-section {
+    page-break-inside: avoid;
+  }
+
+  .how-diagram {
+    background: #f8f8f8 !important;
+    border: 1px solid #ccc !important;
+    padding: 12pt !important;
+    border-radius: 0 !important;
+  }
+
+  .diagram-item {
+    margin-bottom: 6pt;
+  }
+
+  .diagram-file,
+  .diagram-link {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    color: black !important;
+  }
+
+  .diagram-arrow {
+    color: black !important;
+  }
+
+  /* Community section - simplified */
+  .community-section {
+    page-break-before: always;
+  }
+
+  .community-text {
+    text-align: center;
+  }
+
+  .community-text .section-title {
+    font-size: 18pt;
+  }
+
+  /* Footer - minimal */
+  .footer {
+    border-top: 1px solid #ccc;
+    padding-top: 12pt !important;
+  }
+
+  .footer-brand {
+    text-align: center;
+  }
+
+  .footer-logo {
+    font-size: 16pt;
+    color: black !important;
+  }
+
+  .footer-tagline {
+    font-size: 10pt;
+    color: #666 !important;
+  }
+
+  .footer-copyright {
+    text-align: center;
+    font-size: 9pt;
+    margin-top: 8pt;
+  }
+
+  /* Show URLs for external links */
+  a[href^="http"]:not(.painting-attribution)::after {
+    content: " (" attr(href) ")";
+    font-size: 8pt;
+    color: #666;
+    word-break: break-all;
+  }
+
+  /* Don't show URL for internal links */
+  a[href^="#"]::after,
+  a[href^="/"]::after {
+    content: none;
+  }
+
+  /* Page margins */
+  @page {
+    margin: 0.75in;
+    size: letter;
+  }
+
+  @page :first {
+    margin-top: 0.5in;
+  }
+
+  /* Widows and orphans */
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Ensure content flows properly */
+  .website-content {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Print header - hidden on screen */
+.print-header {
+  display: none;
 }

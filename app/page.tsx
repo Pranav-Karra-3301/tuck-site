@@ -26,7 +26,14 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="website-content">
+      <article className="website-content">
+        {/* Print-only header */}
+        <header className="print-header">
+          <h1>tuck</h1>
+          <p className="print-tagline">The Modern Dotfiles Manager</p>
+          <p className="print-url">https://tuck.sh</p>
+        </header>
+
         {/* Hero Section */}
         <section className="hero-section">
         <div className="hero-content">
@@ -40,7 +47,7 @@ export default function Home() {
             <HeroInstall />
           </div>
         </div>
-        <div className="hero-showcase">
+        <div className="hero-showcase" aria-hidden="true">
           <div className="showcase-container">
             <Terminal autoPlay />
           </div>
@@ -49,6 +56,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
             className="painting-attribution hero-attribution"
+            tabIndex={-1}
           >
             Lake George, Free Study, John Frederick Kensett, c. 1872
           </a>
@@ -359,7 +367,7 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="community-globe">
+          <div className="community-globe" aria-hidden="true">
             <RotatingEarth width={500} height={500} />
           </div>
         </div>
@@ -449,7 +457,7 @@ export default function Home() {
           <p className="footer-copyright">&copy; 2025 tuck. MIT License.</p>
         </div>
       </footer>
-      </div>
+      </article>
     </>
   );
 }
