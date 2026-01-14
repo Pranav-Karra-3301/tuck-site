@@ -28,6 +28,21 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "tuck",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -37,11 +52,11 @@ export const metadata: Metadata = {
     description: "Simple, fast, and built in TypeScript. Manage your dotfiles with Git, sync across machines, and never lose your configs again.",
     images: [
       {
-        url: "/preview.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "tuck - The Modern Dotfiles Manager",
-        type: "image/png",
+        type: "image/jpeg",
       },
     ],
   },
@@ -50,7 +65,7 @@ export const metadata: Metadata = {
     title: "tuck - The Modern Dotfiles Manager",
     description: "Simple, fast, and built in TypeScript. Manage your dotfiles with Git, sync across machines, and never lose your configs again.",
     creator: "@pranavkarra",
-    images: ["/preview.png"],
+    images: ["/og-image.jpg"],
   },
   robots: {
     index: true,
