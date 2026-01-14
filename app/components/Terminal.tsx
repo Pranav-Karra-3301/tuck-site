@@ -3,13 +3,23 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
 interface OutputLine {
-  type: 'banner' | 'input' | 'output' | 'success' | 'error' | 'dim' | 'cyan' | 'box-start' | 'box-content' | 'box-end' | 'empty' | 'progress' | 'spinner';
+  type: 'banner' | 'input' | 'output' | 'success' | 'error' | 'dim' | 'cyan' | 'box-top' | 'box-content' | 'box-bottom' | 'box-header' | 'empty' | 'progress' | 'spinner' | 'category-shell' | 'category-git' | 'category-editors' | 'category-terminal' | 'category-ssh' | 'category-misc' | 'divider' | 'prompt-line' | 'prompt-input' | 'intro';
   content: string;
   prefix?: string;
 }
 
-// Start with empty terminal - banner shows after tuck init
+// Start with empty terminal - content shows after command execution
 const INITIAL_OUTPUT: OutputLine[] = [];
+
+// Category icons matching actual tuck CLI
+const CATEGORY_ICONS = {
+  shell: '$',
+  git: '★',
+  editors: '►',
+  terminal: '#',
+  ssh: '⚠',
+  misc: '•',
+};
 
 const DEMO_RESPONSES: Record<string, OutputLine[]> = {
   'tuck init': [
@@ -22,12 +32,12 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     ╚═╝    ╚═════╝  ╚═════╝╚═╝  ╚═╝` },
     { type: 'dim', content: '    Modern Dotfiles Manager' },
     { type: 'empty', content: '' },
-    { type: 'cyan', content: '◆  tuck init' },
+    { type: 'intro', content: '◆  tuck init' },
     { type: 'empty', content: '' },
-    { type: 'output', content: '│' },
+    { type: 'prompt-line', content: '│' },
     { type: 'output', content: '◇  Where should tuck store your dotfiles?' },
-    { type: 'dim', content: '│  ~/.tuck' },
-    { type: 'output', content: '│' },
+    { type: 'prompt-input', content: '│  ~/.tuck' },
+    { type: 'prompt-line', content: '│' },
     { type: 'spinner', content: '◐  Creating directory structure...' },
     { type: 'success', content: '✓  Directory structure created' },
     { type: 'spinner', content: '◐  Initializing git repository...' },
@@ -35,133 +45,193 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'spinner', content: '◐  Creating manifest...' },
     { type: 'success', content: '✓  Manifest created' },
     { type: 'empty', content: '' },
-    { type: 'box-start', content: '╭─────────────────────────────────────╮' },
-    { type: 'box-content', content: '│  ✓ Tuck initialized successfully!  │' },
-    { type: 'box-end', content: '╰─────────────────────────────────────╯' },
+    { type: 'spinner', content: '◐  Scanning for dotfiles...' },
+    { type: 'success', content: '✓  Found 8 dotfiles on your system' },
+    { type: 'empty', content: '' },
+    { type: 'dim', content: '  $ shell: 3 files' },
+    { type: 'dim', content: '  ★ git: 1 file' },
+    { type: 'dim', content: '  ► editors: 2 files' },
+    { type: 'dim', content: '  # terminal: 2 files' },
+    { type: 'empty', content: '' },
+    { type: 'box-top', content: '╭────────────────────────────────────────╮' },
+    { type: 'box-header', content: '│            ✓ Success                   │' },
+    { type: 'box-content', content: '│                                        │' },
+    { type: 'box-content', content: '│  Tuck initialized at ~/.tuck           │' },
+    { type: 'box-content', content: '│  Run \'tuck sync\' to push to GitHub     │' },
+    { type: 'box-bottom', content: '╰────────────────────────────────────────╯' },
   ],
   'tuck add ~/.zshrc': [
     { type: 'empty', content: '' },
+    { type: 'intro', content: '◆  tuck add' },
+    { type: 'empty', content: '' },
     { type: 'cyan', content: 'Tracking 1 file...' },
-    { type: 'dim', content: '──────────────────────────────────────────────────' },
+    { type: 'divider', content: '──────────────────────────────────────────────────' },
     { type: 'empty', content: '' },
-    { type: 'spinner', content: '◐  [1/1] Tracking ~/.zshrc' },
-    { type: 'progress', content: '  ✓ [1/1] ~/.zshrc [shell]' },
+    { type: 'spinner', content: '◐  Copying ~/.zshrc...' },
+    { type: 'category-shell', content: '  ✓ ~/.zshrc → files/shell/zshrc [$]' },
     { type: 'empty', content: '' },
-    { type: 'success', content: '✓ Tracked 1 file successfully' },
+    { type: 'success', content: '✓  Tracked 1 file successfully' },
+    { type: 'dim', content: '   Run \'tuck sync\' to commit changes' },
   ],
   'tuck status': [
     { type: 'empty', content: '' },
-    { type: 'cyan', content: 'Repository Status' },
-    { type: 'dim', content: '──────────────────────────────────────────────────' },
+    { type: 'box-top', content: '╭──────────────────────────────────────────╮' },
+    { type: 'box-content', content: '│ tuck v1.0.0                              │' },
+    { type: 'box-content', content: '│                                          │' },
+    { type: 'box-content', content: '│ Repository: ~/.tuck                      │' },
+    { type: 'box-content', content: '│ Branch:     main                         │' },
+    { type: 'box-content', content: '│ Remote:     Pranav-Karra-3301/dotfiles   │' },
+    { type: 'box-bottom', content: '╰──────────────────────────────────────────╯' },
     { type: 'empty', content: '' },
-    { type: 'output', content: '  Branch: main' },
-    { type: 'success', content: '  Status: Clean' },
+    { type: 'success', content: '✓ Up to date with remote' },
     { type: 'empty', content: '' },
-    { type: 'cyan', content: 'Tracked Files (3)' },
-    { type: 'progress', content: '  ✓ ~/.zshrc        → linked [shell]' },
-    { type: 'progress', content: '  ✓ ~/.gitconfig    → linked [git]' },
-    { type: 'progress', content: '  ✓ ~/.vimrc        → linked [editors]' },
+    { type: 'output', content: '5 files tracked' },
+    { type: 'dim', content: '  $ shell: 2  ★ git: 1  ► editors: 2' },
     { type: 'empty', content: '' },
-    { type: 'success', content: '✓ All files are synced' },
+    { type: 'divider', content: '──────────────────────────────────────────────────' },
+    { type: 'cyan', content: '✓ Everything up to date' },
   ],
   'tuck sync': [
+    { type: 'empty', content: '' },
+    { type: 'intro', content: '◆  tuck sync' },
+    { type: 'empty', content: '' },
+    { type: 'spinner', content: '◐  Checking remote...' },
+    { type: 'success', content: '✓  Already up to date with remote' },
+    { type: 'empty', content: '' },
+    { type: 'spinner', content: '◐  Detecting changes...' },
+    { type: 'success', content: '✓  Found 2 modified files' },
+    { type: 'empty', content: '' },
+    { type: 'dim', content: '  ~ ~/.zshrc' },
+    { type: 'dim', content: '  ~ ~/.gitconfig' },
+    { type: 'empty', content: '' },
+    { type: 'spinner', content: '◐  Scanning for new dotfiles...' },
+    { type: 'success', content: '✓  No new dotfiles found' },
     { type: 'empty', content: '' },
     { type: 'spinner', content: '◐  Staging changes...' },
     { type: 'success', content: '✓  Changes staged' },
     { type: 'spinner', content: '◐  Creating commit...' },
-    { type: 'success', content: '✓  Committed: a1b2c3d' },
-    { type: 'empty', content: '' },
-    { type: 'box-start', content: '╭────────────────────────────╮' },
-    { type: 'box-content', content: '│  ✓ Synced successfully!   │' },
-    { type: 'box-end', content: '╰────────────────────────────╯' },
-  ],
-  'tuck push': [
-    { type: 'empty', content: '' },
+    { type: 'success', content: '✓  Committed: Update shell and git configs' },
     { type: 'spinner', content: '◐  Pushing to origin/main...' },
     { type: 'success', content: '✓  Pushed to origin/main' },
     { type: 'empty', content: '' },
-    { type: 'box-start', content: '╭─────────────────────────────────────────────────╮' },
+    { type: 'box-top', content: '╭────────────────────────────────────────╮' },
+    { type: 'box-header', content: '│         ✓ Synced successfully          │' },
+    { type: 'box-bottom', content: '╰────────────────────────────────────────╯' },
+  ],
+  'tuck push': [
+    { type: 'empty', content: '' },
+    { type: 'intro', content: '◆  tuck push' },
+    { type: 'empty', content: '' },
+    { type: 'spinner', content: '◐  Pushing to origin/main...' },
+    { type: 'success', content: '✓  Pushed 2 commits to origin/main' },
+    { type: 'empty', content: '' },
+    { type: 'box-top', content: '╭─────────────────────────────────────────────────╮' },
     { type: 'box-content', content: '│  Your dotfiles are now synced to GitHub!       │' },
     { type: 'box-content', content: '│                                                 │' },
     { type: 'box-content', content: '│  On a new machine, run:                         │' },
-    { type: 'box-content', content: '│    tuck apply your-username                     │' },
-    { type: 'box-end', content: '╰─────────────────────────────────────────────────╯' },
+    { type: 'box-content', content: '│    tuck apply Pranav-Karra-3301                 │' },
+    { type: 'box-bottom', content: '╰─────────────────────────────────────────────────╯' },
   ],
   'help': [
     { type: 'empty', content: '' },
-    { type: 'box-start', content: '╭───────────────────────────────────╮' },
-    { type: 'box-content', content: '│  tuck · Modern Dotfiles Manager  │' },
-    { type: 'box-end', content: '╰───────────────────────────────────╯' },
+    { type: 'box-top', content: '╭───────────────────────────────────╮' },
+    { type: 'box-content', content: '│ tuck · Modern Dotfiles Manager    │' },
+    { type: 'box-bottom', content: '╰───────────────────────────────────╯' },
     { type: 'empty', content: '' },
     { type: 'cyan', content: 'Quick Start:' },
     { type: 'output', content: '  tuck init          Set up tuck' },
-    { type: 'output', content: '  tuck add <file>    Start tracking a dotfile' },
-    { type: 'output', content: '  tuck sync          Commit your changes' },
-    { type: 'output', content: '  tuck push          Push to GitHub' },
+    { type: 'output', content: '  tuck add <file>    Track a dotfile' },
+    { type: 'output', content: '  tuck sync          Commit & push changes' },
     { type: 'empty', content: '' },
     { type: 'cyan', content: 'On a New Machine:' },
     { type: 'output', content: '  tuck apply <user>  Apply dotfiles from GitHub' },
+    { type: 'empty', content: '' },
+    { type: 'dim', content: '  Run \'tuck <command> --help\' for details' },
   ],
   'tuck add ~/.zshrc ~/.gitconfig': [
     { type: 'empty', content: '' },
+    { type: 'intro', content: '◆  tuck add' },
+    { type: 'empty', content: '' },
     { type: 'cyan', content: 'Tracking 2 files...' },
-    { type: 'dim', content: '──────────────────────────────────────────────────' },
+    { type: 'divider', content: '──────────────────────────────────────────────────' },
     { type: 'empty', content: '' },
-    { type: 'spinner', content: '◐  [1/2] Tracking ~/.zshrc' },
-    { type: 'progress', content: '  ✓ [1/2] ~/.zshrc [shell]' },
-    { type: 'spinner', content: '◐  [2/2] Tracking ~/.gitconfig' },
-    { type: 'progress', content: '  ✓ [2/2] ~/.gitconfig [git]' },
+    { type: 'spinner', content: '◐  [1/2] Copying ~/.zshrc...' },
+    { type: 'category-shell', content: '  ✓ [1/2] ~/.zshrc → files/shell/zshrc [$]' },
+    { type: 'spinner', content: '◐  [2/2] Copying ~/.gitconfig...' },
+    { type: 'category-git', content: '  ✓ [2/2] ~/.gitconfig → files/git/gitconfig [★]' },
     { type: 'empty', content: '' },
-    { type: 'success', content: '✓ Tracked 2 files successfully' },
+    { type: 'success', content: '✓  Tracked 2 files successfully' },
+    { type: 'empty', content: '' },
+    { type: 'output', content: '◇  Would you like to sync these changes now?' },
+    { type: 'prompt-input', content: '│  Yes' },
   ],
   'tuck apply username': [
     { type: 'empty', content: '' },
-    { type: 'cyan', content: '◆  tuck apply' },
+    { type: 'banner', content: `
+ ████████╗██╗   ██╗ ██████╗██╗  ██╗
+ ╚══██╔══╝██║   ██║██╔════╝██║ ██╔╝
+    ██║   ██║   ██║██║     █████╔╝
+    ██║   ██║   ██║██║     ██╔═██╗
+    ██║   ╚██████╔╝╚██████╗██║  ██╗
+    ╚═╝    ╚═════╝  ╚═════╝╚═╝  ╚═╝` },
+    { type: 'dim', content: '    Modern Dotfiles Manager' },
+    { type: 'empty', content: '' },
+    { type: 'intro', content: '◆  tuck apply' },
     { type: 'empty', content: '' },
     { type: 'spinner', content: '◐  Fetching dotfiles from github.com/username/dotfiles...' },
     { type: 'success', content: '✓  Repository cloned' },
     { type: 'empty', content: '' },
     { type: 'output', content: 'Found 5 dotfiles to apply:' },
-    { type: 'dim', content: '  • ~/.zshrc [shell]' },
-    { type: 'dim', content: '  • ~/.gitconfig [git]' },
-    { type: 'dim', content: '  • ~/.vimrc [editors]' },
-    { type: 'dim', content: '  • ~/.tmux.conf [terminal]' },
-    { type: 'dim', content: '  • ~/.config/nvim [editors]' },
+    { type: 'empty', content: '' },
+    { type: 'category-shell', content: '  $ shell' },
+    { type: 'dim', content: '    └── ~/.zshrc' },
+    { type: 'dim', content: '    └── ~/.bash_profile' },
+    { type: 'category-git', content: '  ★ git' },
+    { type: 'dim', content: '    └── ~/.gitconfig' },
+    { type: 'category-editors', content: '  ► editors' },
+    { type: 'dim', content: '    └── ~/.vimrc' },
+    { type: 'dim', content: '    └── ~/.config/nvim' },
+    { type: 'empty', content: '' },
+    { type: 'output', content: '◇  Apply these dotfiles?' },
+    { type: 'prompt-input', content: '│  Yes, merge with existing' },
     { type: 'empty', content: '' },
     { type: 'spinner', content: '◐  Creating Time Machine snapshot...' },
-    { type: 'success', content: '✓  Snapshot created: 2025-01-05-143022' },
+    { type: 'success', content: '✓  Snapshot created: 2025-01-13-143022' },
     { type: 'empty', content: '' },
     { type: 'spinner', content: '◐  Applying dotfiles...' },
-    { type: 'success', content: '✓  Applied 5 files successfully' },
+    { type: 'success', content: '✓  Applied 5 files with smart merge' },
     { type: 'empty', content: '' },
-    { type: 'box-start', content: '╭───────────────────────────────────────╮' },
-    { type: 'box-content', content: '│  ✓ Dotfiles applied successfully!   │' },
-    { type: 'box-content', content: '│                                      │' },
-    { type: 'box-content', content: '│  Run \'tuck status\' to see details   │' },
-    { type: 'box-end', content: '╰───────────────────────────────────────╯' },
+    { type: 'box-top', content: '╭────────────────────────────────────────╮' },
+    { type: 'box-header', content: '│    ✓ Dotfiles applied successfully    │' },
+    { type: 'box-content', content: '│                                        │' },
+    { type: 'box-content', content: '│  Run \'tuck status\' to see details      │' },
+    { type: 'box-content', content: '│  Run \'tuck undo\' to restore backup     │' },
+    { type: 'box-bottom', content: '╰────────────────────────────────────────╯' },
   ],
   'tuck restore --all': [
     { type: 'empty', content: '' },
-    { type: 'cyan', content: '◆  tuck restore --all' },
+    { type: 'intro', content: '◆  tuck restore --all' },
     { type: 'empty', content: '' },
     { type: 'output', content: 'Restoring all tracked dotfiles...' },
-    { type: 'dim', content: '──────────────────────────────────────────────────' },
+    { type: 'divider', content: '──────────────────────────────────────────────────' },
     { type: 'empty', content: '' },
-    { type: 'spinner', content: '◐  Backing up existing files...' },
-    { type: 'success', content: '✓  Backups created' },
+    { type: 'spinner', content: '◐  Creating backup of existing files...' },
+    { type: 'success', content: '✓  Backup created' },
     { type: 'empty', content: '' },
-    { type: 'spinner', content: '◐  [1/4] Restoring ~/.zshrc' },
-    { type: 'progress', content: '  ✓ [1/4] ~/.zshrc → symlinked' },
-    { type: 'spinner', content: '◐  [2/4] Restoring ~/.gitconfig' },
-    { type: 'progress', content: '  ✓ [2/4] ~/.gitconfig → symlinked' },
-    { type: 'spinner', content: '◐  [3/4] Restoring ~/.vimrc' },
-    { type: 'progress', content: '  ✓ [3/4] ~/.vimrc → symlinked' },
-    { type: 'spinner', content: '◐  [4/4] Restoring ~/.config/nvim' },
-    { type: 'progress', content: '  ✓ [4/4] ~/.config/nvim → symlinked' },
+    { type: 'spinner', content: '◐  [1/4] Restoring ~/.zshrc...' },
+    { type: 'category-shell', content: '  ✓ [1/4] ~/.zshrc ← files/shell/zshrc [$]' },
+    { type: 'spinner', content: '◐  [2/4] Restoring ~/.gitconfig...' },
+    { type: 'category-git', content: '  ✓ [2/4] ~/.gitconfig ← files/git/gitconfig [★]' },
+    { type: 'spinner', content: '◐  [3/4] Restoring ~/.vimrc...' },
+    { type: 'category-editors', content: '  ✓ [3/4] ~/.vimrc ← files/editors/vimrc [►]' },
+    { type: 'spinner', content: '◐  [4/4] Restoring ~/.config/nvim...' },
+    { type: 'category-editors', content: '  ✓ [4/4] ~/.config/nvim ← files/editors/nvim [►]' },
     { type: 'empty', content: '' },
-    { type: 'box-start', content: '╭────────────────────────────╮' },
-    { type: 'box-content', content: '│  ✓ Restored 4 files       │' },
-    { type: 'box-end', content: '╰────────────────────────────╯' },
+    { type: 'box-top', content: '╭────────────────────────────────────╮' },
+    { type: 'box-header', content: '│       ✓ Restored 4 files          │' },
+    { type: 'box-content', content: '│                                    │' },
+    { type: 'box-content', content: '│  Backup saved to ~/.tuck/backups   │' },
+    { type: 'box-bottom', content: '╰────────────────────────────────────╯' },
   ],
 };
 
@@ -169,18 +239,21 @@ interface TerminalProps {
   autoPlay?: boolean;
   command?: string; // Single command to auto-execute
   static?: boolean; // If true, terminal is not draggable/resizable
+  playOnScroll?: boolean; // If true, plays when scrolled into view
 }
 
-export default function Terminal({ autoPlay = false, command, static: isStatic = false }: TerminalProps) {
+export default function Terminal({ autoPlay = false, command, static: isStatic = false, playOnScroll = true }: TerminalProps) {
   const [lines, setLines] = useState<OutputLine[]>(INITIAL_OUTPUT);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 520, height: 380 });
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [cursorPosition, setCursorPosition] = useState(0);
+  const [activeSpinners, setActiveSpinners] = useState<Set<number>>(new Set());
 
   const inputRef = useRef<HTMLInputElement>(null);
   const terminalRef = useRef<HTMLDivElement>(null);
@@ -198,7 +271,6 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   useEffect(() => {
     if (hiddenSpanRef.current && promptRef.current) {
       hiddenSpanRef.current.textContent = input || '';
-      // Get the prompt element's width including its margin-right (8px in CSS)
       const promptElement = promptRef.current;
       const promptWidth = promptElement.offsetWidth;
       const promptStyle = window.getComputedStyle(promptElement);
@@ -208,9 +280,33 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
     }
   }, [input]);
 
-  // Auto-play demo on mount
+  // Intersection Observer for scroll-triggered playback
   useEffect(() => {
-    if (autoPlay) {
+    if (!playOnScroll || hasPlayed || autoPlay) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasPlayed) {
+          setHasPlayed(true);
+          if (command) {
+            setTimeout(() => executeCommand(command), 500);
+          }
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (windowRef.current) {
+      observer.observe(windowRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [playOnScroll, hasPlayed, command, autoPlay]);
+
+  // Auto-play demo on mount (for hero terminal)
+  useEffect(() => {
+    if (autoPlay && !hasPlayed) {
+      setHasPlayed(true);
       const runDemo = async () => {
         await new Promise(r => setTimeout(r, 1500));
         await executeCommand('tuck init');
@@ -221,18 +317,18 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
       };
       runDemo();
     }
-  }, [autoPlay]);
+  }, [autoPlay, hasPlayed]);
 
-  // Execute single command on mount
+  // Execute single command on mount (non-scroll mode)
   useEffect(() => {
-    if (command && !autoPlay) {
+    if (command && !autoPlay && !playOnScroll) {
       const runCommand = async () => {
         await new Promise(r => setTimeout(r, 800));
         await executeCommand(command);
       };
       runCommand();
     }
-  }, [command, autoPlay]);
+  }, [command, autoPlay, playOnScroll]);
 
   // Dragging logic
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -256,13 +352,11 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
         const container = windowRef.current?.parentElement;
         if (container) {
           const containerRect = container.getBoundingClientRect();
-          const padding = 20; // Min distance from container edges
+          const padding = 20;
 
-          // Calculate new position relative to container center
           const newX = e.clientX - dragStart.x;
           const newY = e.clientY - dragStart.y;
 
-          // Calculate bounds - terminal can move freely but stay within container
           const minX = -(containerRect.width / 2) + (size.width / 2) + padding;
           const maxX = (containerRect.width / 2) - (size.width / 2) - padding;
           const minY = -(containerRect.height / 2) + (size.height / 2) + padding;
@@ -281,7 +375,6 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
           const deltaX = e.clientX - dragStart.x;
           const deltaY = e.clientY - dragStart.y;
 
-          // Calculate max size based on container
           const maxWidth = Math.min(800, containerRect.width - 40);
           const maxHeight = Math.min(600, containerRect.height - 40);
 
@@ -320,10 +413,29 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
       { type: 'dim', content: 'Type "help" for available commands' },
     ];
 
-    // Simulate typing delay
+    // Simulate typing delay with animated spinners
     for (let i = 0; i < response.length; i++) {
-      await new Promise(r => setTimeout(r, response[i].type === 'spinner' ? 400 : 80));
-      setLines(prev => [...prev, response[i]]);
+      const line = response[i];
+      const delay = line.type === 'spinner' ? 600 : line.type === 'banner' ? 100 : 60;
+      
+      await new Promise(r => setTimeout(r, delay));
+      
+      if (line.type === 'spinner') {
+        // Add spinner line with animation
+        const spinnerIndex = lines.length + i + 1;
+        setActiveSpinners(prev => new Set([...prev, spinnerIndex]));
+        setLines(prev => [...prev, line]);
+        
+        // After a delay, remove from active spinners (animation stops)
+        await new Promise(r => setTimeout(r, 400));
+        setActiveSpinners(prev => {
+          const next = new Set(prev);
+          next.delete(spinnerIndex);
+          return next;
+        });
+      } else {
+        setLines(prev => [...prev, line]);
+      }
     }
 
     setIsTyping(false);
@@ -346,6 +458,8 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   };
 
   const renderLine = (line: OutputLine, idx: number) => {
+    const isActiveSpinner = activeSpinners.has(idx);
+    
     switch (line.type) {
       case 'banner':
         return <pre key={idx} className="terminal-banner">{line.content}</pre>;
@@ -364,17 +478,45 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
         return <div key={idx} className="terminal-line terminal-error">{line.content}</div>;
       case 'cyan':
         return <div key={idx} className="terminal-line terminal-cyan">{line.content}</div>;
+      case 'intro':
+        return <div key={idx} className="terminal-line terminal-intro">{line.content}</div>;
       case 'dim':
         return <div key={idx} className="terminal-line terminal-dim">{line.content}</div>;
       case 'progress':
         return <div key={idx} className="terminal-line terminal-progress">{line.content}</div>;
       case 'spinner':
-        return <div key={idx} className="terminal-line terminal-spinner">{line.content}</div>;
-      case 'box-start':
-      case 'box-end':
+        return (
+          <div key={idx} className={`terminal-line terminal-spinner ${isActiveSpinner ? 'spinning' : ''}`}>
+            <span className="spinner-char">{isActiveSpinner ? '◐' : '✓'}</span>
+            <span className="spinner-text">{line.content.replace(/^◐\s*/, '')}</span>
+          </div>
+        );
+      case 'divider':
+        return <div key={idx} className="terminal-line terminal-divider">{line.content}</div>;
+      case 'prompt-line':
+        return <div key={idx} className="terminal-line terminal-prompt-line">{line.content}</div>;
+      case 'prompt-input':
+        return <div key={idx} className="terminal-line terminal-prompt-input">{line.content}</div>;
+      case 'box-top':
         return <div key={idx} className="terminal-line terminal-box-border">{line.content}</div>;
+      case 'box-bottom':
+        return <div key={idx} className="terminal-line terminal-box-border">{line.content}</div>;
+      case 'box-header':
+        return <div key={idx} className="terminal-line terminal-box-header">{line.content}</div>;
       case 'box-content':
         return <div key={idx} className="terminal-line terminal-box-content">{line.content}</div>;
+      case 'category-shell':
+        return <div key={idx} className="terminal-line terminal-category terminal-category-shell">{line.content}</div>;
+      case 'category-git':
+        return <div key={idx} className="terminal-line terminal-category terminal-category-git">{line.content}</div>;
+      case 'category-editors':
+        return <div key={idx} className="terminal-line terminal-category terminal-category-editors">{line.content}</div>;
+      case 'category-terminal':
+        return <div key={idx} className="terminal-line terminal-category terminal-category-terminal">{line.content}</div>;
+      case 'category-ssh':
+        return <div key={idx} className="terminal-line terminal-category terminal-category-ssh">{line.content}</div>;
+      case 'category-misc':
+        return <div key={idx} className="terminal-line terminal-category terminal-category-misc">{line.content}</div>;
       case 'empty':
         return <div key={idx} className="terminal-line">&nbsp;</div>;
       default:

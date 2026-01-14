@@ -476,12 +476,13 @@ body {
 
 /* Terminal banner (ASCII art) */
 .terminal-banner {
-  font-size: 10px;
-  line-height: 1.1;
-  color: var(--accent);
+  font-size: 9px;
+  line-height: 1.05;
+  color: #22d3ee;
   margin: 0;
   white-space: pre;
   font-family: inherit;
+  letter-spacing: -0.5px;
 }
 
 /* Terminal lines */
@@ -512,17 +513,106 @@ body {
   color: var(--success);
 }
 
+/* Spinner animation */
 .terminal-spinner {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.terminal-spinner .spinner-char {
+  display: inline-block;
+  width: 1.2em;
   color: #a78bfa;
+}
+
+.terminal-spinner .spinner-text {
+  color: var(--text-secondary);
+}
+
+.terminal-spinner.spinning .spinner-char {
+  animation: spin 0.6s steps(4) infinite;
+}
+
+@keyframes spin {
+  0% { content: '◐'; }
+  25% { content: '◓'; }
+  50% { content: '◑'; }
+  75% { content: '◒'; }
+}
+
+/* Use CSS animation for spinner rotation effect */
+.terminal-spinner.spinning .spinner-char {
+  animation: spinner-rotate 0.6s linear infinite;
+}
+
+@keyframes spinner-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Intro line (cyan diamond) */
+.terminal-intro {
+  color: #22d3ee;
+  font-weight: 500;
+}
+
+/* Prompt lines (clack-style) */
+.terminal-prompt-line {
+  color: var(--text-muted);
+}
+
+.terminal-prompt-input {
+  color: var(--text-muted);
+}
+
+/* Divider line */
+.terminal-divider {
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
 /* Box styles (for boxen-like output) */
 .terminal-box-border {
+  color: #22d3ee;
+}
+
+.terminal-box-header {
   color: var(--success);
 }
 
 .terminal-box-content {
-  color: var(--text-primary);
+  color: var(--text-secondary);
+}
+
+/* Category-specific colors matching tuck CLI */
+.terminal-category {
+  font-weight: 500;
+}
+
+.terminal-category-shell {
+  color: #22c55e; /* green for $ shell */
+}
+
+.terminal-category-git {
+  color: #facc15; /* yellow for ★ git */
+}
+
+.terminal-category-editors {
+  color: #22d3ee; /* cyan for ► editors */
+}
+
+.terminal-category-terminal {
+  color: #3b82f6; /* blue for # terminal */
+}
+
+.terminal-category-ssh {
+  color: #ef4444; /* red for ⚠ ssh */
+}
+
+.terminal-category-misc {
+  color: var(--text-muted); /* dim for • misc */
 }
 
 /* Terminal prompt */
@@ -692,9 +782,9 @@ body {
 .terminal-window.static {
   width: 100%;
   max-width: 560px;
-  height: 304px;
-  min-height: 304px;
-  max-height: 304px;
+  height: 380px;
+  min-height: 380px;
+  max-height: 380px;
   cursor: default;
   overflow: hidden;
 }
