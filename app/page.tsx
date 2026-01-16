@@ -5,6 +5,7 @@ import HeroInstall from "./components/HeroInstall";
 import ThemeToggle from "./components/ThemeToggle";
 import RotatingEarth from "./components/RotatingEarth";
 import CopyButton from "./components/CopyButton";
+import ComparisonTable from "./components/ComparisonTable";
 
 export default function Home() {
   return (
@@ -342,6 +343,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Comparison Table Section */}
+      <ComparisonTable />
 
       {/* Open Source Community Section */}
       <section className="community-section">
