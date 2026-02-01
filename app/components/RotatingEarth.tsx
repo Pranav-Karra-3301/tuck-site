@@ -4,6 +4,29 @@ import { useEffect, useRef, useState } from "react"
 import * as d3 from "d3"
 import { useTheme } from "./ThemeProvider"
 
+interface PolygonGeometry {
+  type: 'Polygon';
+  coordinates: number[][][];
+}
+
+interface MultiPolygonGeometry {
+  type: 'MultiPolygon';
+  coordinates: number[][][][];
+}
+
+type GeoJSONGeometry = PolygonGeometry | MultiPolygonGeometry;
+
+interface GeoJSONFeature {
+  type: 'Feature';
+  properties: Record<string, unknown> | null;
+  geometry: GeoJSONGeometry;
+}
+
+interface GeoJSONCollection {
+  type: 'FeatureCollection';
+  features: GeoJSONFeature[];
+}
+
 interface RotatingEarthProps {
   width?: number
   height?: number
@@ -67,7 +90,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
       return inside
     }
 
-    const pointInFeature = (point: [number, number], feature: any): boolean => {
+    const pointInFeature = (point: [number, number], feature: GeoJSONFeature): boolean => {
       const geometry = feature.geometry
 
       if (geometry.type === "Polygon") {
@@ -107,7 +130,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
       return false
     }
 
-    const generateDotsInPolygon = (feature: any, dotSpacing = 16) => {
+    const generateDotsInPolygon = (feature: GeoJSONFeature, dotSpacing = 16): [number, number][] => {
       const dots: [number, number][] = []
       const bounds = d3.geoBounds(feature)
       const [[minLng, minLat], [maxLng, maxLat]] = bounds
@@ -125,10 +148,6 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
         }
       }
 
-      console.log(
-        `[v0] Generated ${pointsGenerated} points for land feature:`,
-        feature.properties?.featurecla || "Land",
-      )
       return dots
     }
 
@@ -139,7 +158,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
     }
 
     const allDots: DotData[] = []
-    let landFeatures: any
+    let landFeatures: GeoJSONCollection | null = null
 
     const render = () => {
       // Clear canvas
@@ -177,8 +196,8 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
 
         // Draw land outlines
         context.beginPath()
-        landFeatures.features.forEach((feature: any) => {
-          path(feature)
+        landFeatures.features.forEach((feature: GeoJSONFeature) => {
+          path(feature as d3.GeoPermissibleObjects)
         })
         context.strokeStyle = strokeColor
         context.lineWidth = 1 * scaleFactor
@@ -212,19 +231,17 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
         )
         if (!response.ok) throw new Error("Failed to load land data")
 
-        landFeatures = await response.json()
+        landFeatures = await response.json() as GeoJSONCollection
 
         // Generate dots for all land features
         let totalDots = 0
-        landFeatures.features.forEach((feature: any) => {
+        landFeatures.features.forEach((feature: GeoJSONFeature) => {
           const dots = generateDotsInPolygon(feature, 16)
           dots.forEach(([lng, lat]) => {
             allDots.push({ lng, lat, visible: true })
             totalDots++
           })
         })
-
-        console.log(`[v0] Total dots generated: ${totalDots} across ${landFeatures.features.length} land features`)
 
         render()
         renderRef.current = render
@@ -315,7 +332,7 @@ export default function RotatingEarth({ width = 800, height = 600, className = "
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} role="img" aria-label="Interactive rotating globe visualization">
       <canvas
         ref={canvasRef}
         className="w-full h-auto rounded-2xl bg-background dark"

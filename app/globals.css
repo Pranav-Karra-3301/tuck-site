@@ -801,7 +801,7 @@ body {
   width: 40px;
   height: 40px;
   background: var(--accent);
-  color: var(--bg-dark);
+  color: var(--bg-base);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -1554,7 +1554,6 @@ body {
 
   .feature-showcase,
   .install-section,
-  .commands-section,
   .how-section,
   .community-section,
   .install-section {
@@ -1585,10 +1584,6 @@ body {
 
   .footer {
     padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
-  }
-
-  .commands-grid {
-    grid-template-columns: 1fr;
   }
 
   .terminal-window {
