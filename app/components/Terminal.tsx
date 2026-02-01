@@ -476,7 +476,7 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
       onMouseDown={handleMouseDown}
     >
       <div className="terminal-titlebar">
-        <div className="terminal-buttons">
+        <div className="terminal-buttons" aria-hidden="true">
           <span className="terminal-btn close"></span>
           <span className="terminal-btn minimize"></span>
           <span className="terminal-btn maximize"></span>
@@ -501,6 +501,7 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
             spellCheck={false}
             autoComplete="off"
             placeholder={isTyping ? '' : 'try: tuck init'}
+            aria-label="Terminal command input"
           />
           <span
             className={`terminal-cursor ${isTyping ? 'hidden' : ''}`}
