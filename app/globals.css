@@ -99,7 +99,7 @@ body {
 
 .section-header {
   text-align: center;
-  margin-bottom: 64px;
+  margin-bottom: clamp(32px, 8vw, 64px);
 }
 
 .section-title {
@@ -111,10 +111,11 @@ body {
 }
 
 .section-subtitle {
-  font-size: 18px;
+  font-size: clamp(15px, 3vw, 18px);
   color: var(--text-secondary);
   max-width: 500px;
   margin: 0 auto;
+  padding: 0 16px;
 }
 
 /* ========================================
@@ -264,14 +265,14 @@ body {
 }
 
 .hero-subtitle {
-  font-size: 22px;
+  font-size: clamp(18px, 4vw, 22px);
   color: var(--accent);
   margin-bottom: 20px;
   font-weight: 400;
 }
 
 .hero-description {
-  font-size: 17px;
+  font-size: clamp(15px, 3vw, 17px);
   color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 36px;
@@ -301,6 +302,8 @@ body {
   padding: 14px 20px;
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   transition: all 0.2s ease;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .hero-code-block:hover {
@@ -831,6 +834,8 @@ body {
   border-radius: var(--radius-inner);
   border: 1px solid var(--border);
   margin-bottom: var(--spacing-xs);
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 [data-theme="dark"] .code-block {
@@ -1067,10 +1072,10 @@ body {
 }
 
 .how-description {
-  font-size: 18px;
+  font-size: clamp(15px, 3vw, 18px);
   color: var(--text-secondary);
   line-height: 1.8;
-  margin-bottom: 48px;
+  margin-bottom: clamp(24px, 6vw, 48px);
 }
 
 .how-diagram {
@@ -1550,6 +1555,12 @@ body {
 
   .hero-section {
     padding: var(--spacing-lg) var(--spacing-md);
+    min-height: auto;
+  }
+
+  .hero-showcase .showcase-container {
+    height: 350px;
+    padding: var(--spacing-md);
   }
 
   .feature-showcase,
@@ -1558,6 +1569,34 @@ body {
   .community-section,
   .install-section {
     padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  .how-content {
+    padding: 0 8px;
+  }
+
+  .how-diagram {
+    padding: var(--spacing-sm);
+    overflow-x: auto;
+  }
+
+  .diagram-item {
+    font-size: 13px;
+    gap: 12px;
+  }
+
+  .diagram-file {
+    min-width: 100px;
+    font-size: 12px;
+  }
+
+  .diagram-link {
+    min-width: 130px;
+    font-size: 12px;
+  }
+
+  .how-note {
+    font-size: 14px;
   }
 
   .community-content {
@@ -1589,19 +1628,35 @@ body {
   .terminal-window {
     width: 100% !important;
     max-width: 100%;
-    height: 320px !important;
+    height: auto !important;
+    min-height: 300px;
+    max-height: 380px;
     transform: none !important;
   }
 
+  /* Disable drag/resize on mobile */
+  .terminal-titlebar {
+    cursor: default !important;
+  }
+
+  .terminal-resize-handle {
+    display: none !important;
+  }
+
   .showcase-container {
+    width: 100%;
     padding: var(--spacing-sm);
     height: 450px;
+  }
+
+  .hero-showcase {
+    width: 100%;
+    padding: 0 16px;
   }
 
   .feature-showcase {
     padding: var(--spacing-lg) var(--spacing-sm);
   }
-
   .feature-showcase-content {
     padding: var(--spacing-sm);
     border-radius: 12px;
@@ -1627,6 +1682,11 @@ body {
 
   .footer-links {
     grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .footer-column {
+    min-width: 45%;
   }
 
   .install-step {
@@ -1636,21 +1696,24 @@ body {
 
   .footer-bottom {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--spacing-sm);
+    align-items: center;
+    gap: var(--spacing-md);
+    text-align: center;
   }
 
   .footer-locations {
     width: 100%;
+    text-align: center;
   }
 
   .footer-copyright {
-    text-align: left;
+    text-align: center;
     width: 100%;
   }
 
   .locations-text {
     font-size: 15px;
+    justify-content: center;
   }
 
   .location-map-container {
@@ -1662,6 +1725,26 @@ body {
 @media (max-width: 480px) {
   .site-header {
     padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .hero-showcase .showcase-container {
+    height: 280px;
+    padding: var(--spacing-sm);
+  }
+
+  /* Terminal mobile font size and text wrapping */
+  .terminal-body {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+
+  .terminal-line {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .terminal-title {
+    font-size: 11px;
   }
 
   .hero-buttons {
@@ -1693,6 +1776,11 @@ body {
     grid-template-columns: 1fr;
   }
 
+  .footer-column {
+    min-width: 100%;
+    text-align: center;
+  }
+
   .diagram-item {
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -1721,6 +1809,18 @@ body {
   .location-pin::before {
     width: 4px;
     height: 4px;
+  }
+
+  .code-block code {
+    font-size: 13px;
+  }
+
+  .install-section {
+    padding: var(--spacing-lg) var(--spacing-sm);
+  }
+
+  .install-methods {
+    max-width: 100%;
   }
 }
 
@@ -1833,15 +1933,18 @@ body {
 .comparison-section {
   padding: var(--spacing-xl) var(--spacing-lg);
   background: var(--bg-base);
+  overflow-x: hidden;
 }
 
 .comparison-table-wrapper {
   max-width: var(--content-width);
   margin: 0 auto;
+  position: relative;
 }
 
 .comparison-table-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid var(--border);
   border-radius: var(--radius-inner);
   background: var(--bg-elevated);
@@ -2017,6 +2120,20 @@ body {
     padding: var(--spacing-lg) var(--spacing-sm);
   }
 
+  /* Visual scroll indicator - fade on right edge */
+  .comparison-table-wrapper::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background: linear-gradient(to right, transparent, var(--bg-base));
+    pointer-events: none;
+    z-index: 10;
+    border-radius: 0 var(--radius-inner) var(--radius-inner) 0;
+  }
+
   .comparison-table {
     font-size: 12px;
   }
@@ -2029,6 +2146,19 @@ body {
   .feature-header,
   .feature-cell {
     min-width: 150px;
+  }
+
+  /* Add shadow to sticky first column to indicate scrollable content */
+  .feature-header::after,
+  .feature-cell::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.08), transparent);
+    pointer-events: none;
   }
 
   .comparison-legend {
@@ -2045,6 +2175,16 @@ body {
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-sm);
+  }
+
+  .feature-header,
+  .feature-cell {
+    min-width: 130px;
+  }
+
+  .comparison-table th,
+  .comparison-table td {
+    padding: 8px 10px;
   }
 }
 

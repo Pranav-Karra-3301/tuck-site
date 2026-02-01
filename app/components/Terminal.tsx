@@ -193,6 +193,7 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   const [hasPlayed, setHasPlayed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 520, height: 380 });
+  const [isMobile, setIsMobile] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -204,6 +205,21 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   const windowRef = useRef<HTMLDivElement>(null);
   const hiddenSpanRef = useRef<HTMLSpanElement>(null);
   const promptRef = useRef<HTMLSpanElement>(null);
+
+  // Detect mobile and adjust size accordingly
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSize({ width: window.innerWidth - 32, height: 320 });
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -270,19 +286,19 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   }, [command, autoPlay, playOnScroll]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (isStatic) return;
+    if (isStatic || isMobile) return;
     if ((e.target as HTMLElement).closest('.terminal-titlebar')) {
       setIsDragging(true);
       setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
     }
-  }, [position, isStatic]);
+  }, [position, isStatic, isMobile]);
 
   const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
-    if (isStatic) return;
+    if (isStatic || isMobile) return;
     e.stopPropagation();
     setIsResizing(true);
     setDragStart({ x: e.clientX, y: e.clientY });
-  }, [isStatic]);
+  }, [isStatic, isMobile]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
