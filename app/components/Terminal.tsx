@@ -206,14 +206,10 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   const hiddenSpanRef = useRef<HTMLSpanElement>(null);
   const promptRef = useRef<HTMLSpanElement>(null);
 
-  // Detect mobile and adjust size accordingly
+  // Detect mobile to disable drag/resize
   useEffect(() => {
     const checkMobile = () => {
-      const mobile = window.innerWidth <= 768;
-      setIsMobile(mobile);
-      if (mobile) {
-        setSize({ width: window.innerWidth - 32, height: 320 });
-      }
+      setIsMobile(window.innerWidth <= 768);
     };
 
     checkMobile();

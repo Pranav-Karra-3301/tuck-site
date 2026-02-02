@@ -1555,12 +1555,6 @@ body {
 
   .hero-section {
     padding: var(--spacing-lg) var(--spacing-md);
-    min-height: auto;
-  }
-
-  .hero-showcase .showcase-container {
-    height: 350px;
-    padding: var(--spacing-md);
   }
 
   .feature-showcase,
@@ -1625,15 +1619,6 @@ body {
     padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
   }
 
-  .terminal-window {
-    width: 100% !important;
-    max-width: 100%;
-    height: auto !important;
-    min-height: 300px;
-    max-height: 380px;
-    transform: none !important;
-  }
-
   /* Disable drag/resize on mobile */
   .terminal-titlebar {
     cursor: default !important;
@@ -1644,14 +1629,8 @@ body {
   }
 
   .showcase-container {
-    width: 100%;
     padding: var(--spacing-sm);
     height: 450px;
-  }
-
-  .hero-showcase {
-    width: 100%;
-    padding: 0 16px;
   }
 
   .feature-showcase {
