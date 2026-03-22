@@ -332,30 +332,100 @@ export default function Home() {
 
       {/* Open Source Community Section */}
       <section className="community-section">
-        <div className="community-content">
-          <div className="community-text">
-            <h2 className="section-title">Built with the open source community</h2>
-            <div className="community-buttons">
-              <a
-                href="https://github.com/Pranav-Karra-3301/tuck"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="community-button"
-              >
-                Contribute to tuck
-              </a>
-              <a
-                href="https://github.com/Pranav-Karra-3301/tuck-site"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="community-button secondary"
-              >
-                Help improve this website
-              </a>
+        <div className="community-shell">
+          <div className="community-content">
+            <div className="community-text">
+              <p className="community-kicker">Open source is the transport layer</p>
+              <h2 className="section-title">Built with the open source community</h2>
+              <p className="community-description">
+                tuck leans on the same ecosystem developers already trust:
+                Git for history, TypeScript for clarity, package managers for
+                distribution, and contributors who keep the toolchain moving.
+              </p>
+              <div className="community-signals">
+                <div className="community-signal">
+                  <span className="community-signal-label">Source of truth</span>
+                  <p className="community-signal-copy">
+                    Git-native workflows keep syncing, restoring, and reviewing familiar.
+                  </p>
+                </div>
+                <div className="community-signal">
+                  <span className="community-signal-label">Distribution</span>
+                  <p className="community-signal-copy">
+                    npm, Homebrew, and standard tooling make sharing configs feel native.
+                  </p>
+                </div>
+                <div className="community-signal">
+                  <span className="community-signal-label">Built in public</span>
+                  <p className="community-signal-copy">
+                    The code, docs, and fixes stay open to contributors who want to shape it.
+                  </p>
+                </div>
+              </div>
+              <div className="community-buttons">
+                <a
+                  href="https://github.com/Pranav-Karra-3301/tuck"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="community-button"
+                >
+                  Contribute to tuck
+                </a>
+                <a
+                  href="https://github.com/Pranav-Karra-3301/tuck-site"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="community-button secondary"
+                >
+                  Help improve this website
+                </a>
+              </div>
             </div>
-          </div>
-          <div className="community-globe" aria-hidden="true">
-            <RotatingEarth width={500} height={500} />
+            <div className="community-visual">
+              <div className="community-visual-frame">
+                <div className="community-visual-header">
+                  <span className="community-visual-tag">live community graph</span>
+                  <p className="community-visual-copy">
+                    A moving map of the tools and people tuck travels through.
+                  </p>
+                </div>
+                <div className="community-stage">
+                  <div className="community-orbit community-orbit-large" aria-hidden="true" />
+                  <div className="community-orbit community-orbit-small" aria-hidden="true" />
+                  <div className="community-stage-badge community-stage-badge-left" aria-hidden="true">
+                    <span className="community-stage-label">foundation</span>
+                    <strong className="community-stage-value">Git-native</strong>
+                  </div>
+                  <div className="community-stage-badge community-stage-badge-right" aria-hidden="true">
+                    <span className="community-stage-label">flow</span>
+                    <strong className="community-stage-value">sync routes</strong>
+                  </div>
+                  <div className="community-globe" aria-hidden="true">
+                    <RotatingEarth className="community-cobe" />
+                  </div>
+                </div>
+                <div className="community-legend">
+                  <span>TypeScript</span>
+                  <span>GitHub</span>
+                  <span>npm</span>
+                  <span>contributors</span>
+                </div>
+                <div className="community-metadata">
+                  <div className="community-meta-card">
+                    <span className="community-meta-label">Runtime</span>
+                    <span className="community-meta-value">TypeScript</span>
+                  </div>
+                  <div className="community-meta-card">
+                    <span className="community-meta-label">Versioned by</span>
+                    <span className="community-meta-value">Git</span>
+                  </div>
+                  <div className="community-meta-card">
+                    <span className="community-meta-label">Distributed with</span>
+                    <span className="community-meta-value">npm + Homebrew</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
