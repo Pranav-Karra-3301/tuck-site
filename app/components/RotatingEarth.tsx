@@ -1,6 +1,6 @@
 "use client";
 
-import createGlobe, { type Arc, type Marker } from "cobe";
+import createGlobe from "cobe";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "./ThemeProvider";
 
@@ -10,54 +10,27 @@ interface RotatingEarthProps {
 
 type Rgb = [number, number, number];
 
-const ACCENT: Rgb = [1, 0.42, 0.21];
-const SOFT_ACCENT: Rgb = [1, 0.58, 0.35];
-
-const COMMUNITY_MARKERS: Marker[] = [
-  { location: [37.7749, -122.4194], size: 0.12, color: ACCENT },
-  { location: [40.7128, -74.006], size: 0.1, color: SOFT_ACCENT },
-  { location: [52.52, 13.405], size: 0.09 },
-  { location: [12.9716, 77.5946], size: 0.1, color: SOFT_ACCENT },
-  { location: [35.6762, 139.6503], size: 0.1 },
-  { location: [-23.5505, -46.6333], size: 0.09 },
-  { location: [-1.2921, 36.8219], size: 0.08 },
-  { location: [-33.8688, 151.2093], size: 0.08 },
-];
-
-const COMMUNITY_ARCS: Arc[] = [
-  { from: [37.7749, -122.4194], to: [40.7128, -74.006], color: SOFT_ACCENT },
-  { from: [40.7128, -74.006], to: [52.52, 13.405] },
-  { from: [52.52, 13.405], to: [12.9716, 77.5946], color: SOFT_ACCENT },
-  { from: [12.9716, 77.5946], to: [35.6762, 139.6503] },
-  { from: [35.6762, 139.6503], to: [-33.8688, 151.2093], color: SOFT_ACCENT },
-  { from: [12.9716, 77.5946], to: [-1.2921, 36.8219] },
-  { from: [-1.2921, 36.8219], to: [-23.5505, -46.6333], color: SOFT_ACCENT },
-  { from: [-23.5505, -46.6333], to: [37.7749, -122.4194] },
-];
-
 function getPalette(theme: "light" | "dark") {
   if (theme === "light") {
     return {
-      baseColor: [0.92, 0.91, 0.88] as Rgb,
+      baseColor: [0.9, 0.88, 0.84] as Rgb,
       glowColor: [1, 1, 1] as Rgb,
-      markerColor: [0.95, 0.42, 0.21] as Rgb,
-      arcColor: [1, 0.5, 0.3] as Rgb,
+      markerColor: [1, 0.42, 0.21] as Rgb,
       dark: 0.05,
       diffuse: 1.35,
-      mapBrightness: 5.3,
-      mapBaseBrightness: 0.15,
+      mapBrightness: 5,
+      mapBaseBrightness: 0.12,
     };
   }
 
   return {
-    baseColor: [0.12, 0.12, 0.12] as Rgb,
-    glowColor: [0.08, 0.08, 0.08] as Rgb,
+    baseColor: [0.16, 0.16, 0.16] as Rgb,
+    glowColor: [0.07, 0.07, 0.07] as Rgb,
     markerColor: [1, 0.42, 0.21] as Rgb,
-    arcColor: [1, 0.56, 0.36] as Rgb,
     dark: 1,
     diffuse: 1.1,
-    mapBrightness: 4.8,
-    mapBaseBrightness: 0.05,
+    mapBrightness: 4.3,
+    mapBaseBrightness: 0.04,
   };
 }
 
@@ -96,21 +69,22 @@ export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
     if (!canvas) return;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
     const palette = getPalette(resolvedTheme);
 
-    let phi = 0.7;
+    let phi = 0.65;
     let pointerX = 0;
     let pointerY = 0;
 
     const globe = createGlobe(canvas, {
-      width: canvasSize * 2,
-      height: canvasSize * 2,
-      devicePixelRatio: 1,
+      width: canvasSize,
+      height: canvasSize,
+      devicePixelRatio,
       phi,
-      theta: 0.28,
+      theta: 0.22,
       dark: palette.dark,
       diffuse: palette.diffuse,
-      scale: 0.92,
+      scale: 0.98,
       opacity: 1,
       mapSamples: 18000,
       mapBrightness: palette.mapBrightness,
@@ -118,25 +92,19 @@ export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
       baseColor: palette.baseColor,
       markerColor: palette.markerColor,
       glowColor: palette.glowColor,
-      arcColor: palette.arcColor,
       offset: [0, 0],
-      markers: COMMUNITY_MARKERS,
-      arcs: COMMUNITY_ARCS,
-      arcWidth: 0.7,
-      arcHeight: 0.16,
-      markerElevation: 0.12,
     });
 
     let animationFrame = 0;
 
     const render = () => {
       if (!reduceMotion) {
-        phi += 0.0035;
+        phi += 0.0024;
       }
 
       globe.update({
-        phi: phi + pointerX * 0.18,
-        theta: 0.28 + pointerY * 0.14,
+        phi: phi + pointerX * 0.12,
+        theta: 0.22 + pointerY * 0.08,
       });
 
       animationFrame = window.requestAnimationFrame(render);
