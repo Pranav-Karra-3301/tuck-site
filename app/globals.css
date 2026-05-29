@@ -21,7 +21,8 @@
   --bg-surface: #242424;
   --text-primary: #ffffff;
   --text-secondary: #a0a0a0;
-  --text-muted: #666666;
+  --text-muted: #9a9a9a;
+  --text-tertiary: #9a9a9a;
   --accent: #ff6b35;
   --accent-hover: #ff8555;
   --success: #4ade80;
@@ -49,7 +50,8 @@
   --bg-surface: #e8e7e4;
   --text-primary: #1a1a1a;
   --text-secondary: #5a5a5a;
-  --text-muted: #8a8a8a;
+  --text-muted: #6b6b6b;
+  --text-tertiary: #6b6b6b;
   --accent: #ff6b35;
   --accent-hover: #ff8555;
   --success: #2d8659;
@@ -183,7 +185,10 @@ body {
   left: 0;
   right: 0;
   z-index: 100;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding-top: max(var(--spacing-md), env(safe-area-inset-top));
+  padding-bottom: var(--spacing-md);
+  padding-left: max(var(--spacing-lg), env(safe-area-inset-left));
+  padding-right: max(var(--spacing-lg), env(safe-area-inset-right));
   pointer-events: none;
 }
 
@@ -844,9 +849,15 @@ body {
 
 .code-block code {
   flex: 1;
+  min-width: 0;
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 15px;
   color: var(--text-primary);
+}
+
+/* Keep copy button from shrinking so code can scroll */
+.code-block .copy-btn {
+  flex-shrink: 0;
 }
 
 .copy-btn {
@@ -1143,7 +1154,7 @@ body {
   max-width: var(--content-width);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: var(--spacing-lg);
   align-items: center;
 }
@@ -1152,14 +1163,46 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-right: var(--spacing-md);
+  gap: var(--spacing-md);
+  padding-right: clamp(0px, 2vw, 24px);
+}
+
+.community-kicker {
+  color: var(--accent);
+  font-size: 13px;
 }
 
 .community-text .section-title {
   text-align: left;
-  font-size: 3.5rem;
-  line-height: 1.1;
+  font-size: clamp(48px, 5vw, 72px);
+  line-height: 0.98;
   margin: 0;
+  text-wrap: balance;
+}
+
+.community-description {
+  max-width: 34rem;
+  color: var(--text-secondary);
+  font-size: 16px;
+  line-height: 1.8;
+  text-wrap: pretty;
+}
+
+.community-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  max-width: 34rem;
+}
+
+.community-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 107, 53, 0.1);
+  color: var(--text-primary);
+  font-size: 13px;
 }
 
 .community-buttons {
@@ -1192,29 +1235,85 @@ body {
 
 .community-button.secondary {
   background: transparent;
-  color: var(--text);
+  color: var(--text-primary);
   border: 1px solid var(--border);
 }
 
 .community-button.secondary:hover {
-  background: var(--bg-elevated);
-  border-color: var(--border-hover);
+  background: rgba(255, 107, 53, 0.08);
+  border-color: var(--accent);
 }
 
 .community-globe {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.community-globe canvas {
-  cursor: grab;
-  max-width: 100%;
-  height: auto;
+.community-visual {
+  position: relative;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.community-globe canvas:active {
-  cursor: grabbing;
+.community-sticker {
+  position: absolute;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.community-cobe {
+  width: min(100%, 520px);
+}
+
+.community-sticker-git {
+  top: 14%;
+  left: 4%;
+  transform: rotate(-8deg);
+}
+
+.community-sticker-typescript {
+  top: 16%;
+  right: 8%;
+  transform: rotate(7deg);
+}
+
+.community-sticker-npm {
+  bottom: 18%;
+  left: 10%;
+  transform: rotate(5deg);
+}
+
+.community-sticker-brew {
+  right: 6%;
+  bottom: 15%;
+  transform: rotate(-7deg);
+}
+
+.rotating-earth {
+  width: 100%;
+  max-width: 520px;
+  aspect-ratio: 1 / 1;
+}
+
+.rotating-earth canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.rotating-earth-canvas {
+  max-width: 100%;
 }
 
 /* ========================================
@@ -1420,7 +1519,6 @@ body {
   font-size: 14px;
   color: var(--text-muted);
   text-align: right;
-  white-space: nowrap;
   margin: 0;
 }
 
@@ -1540,17 +1638,59 @@ body {
 
 @media (max-width: 768px) {
   .site-header {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding-top: max(var(--spacing-sm), env(safe-area-inset-top));
+    padding-bottom: var(--spacing-sm);
+    padding-left: max(var(--spacing-md), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-md), env(safe-area-inset-right));
   }
 
+  /* Keep touch target >= 44px (do not shrink below) */
   .github-link {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 
   .github-link svg {
     width: 20px;
     height: 20px;
+  }
+
+  /* Touch targets >= 44px */
+  .theme-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .theme-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .hero-copy-btn,
+  .copy-btn {
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Hero terminal fits small screens (Terminal.tsx drops inline width on mobile) */
+  .hero-showcase .terminal-window:not(.static) {
+    width: 100% !important;
+    max-width: 560px;
+    height: auto;
+  }
+
+  .hero-showcase .showcase-container {
+    height: auto;
+  }
+
+  /* Avoid big empty panels on mobile */
+  .feature-showcase-content {
+    min-height: auto;
+  }
+
+  .feature-showcase-terminal .showcase-container {
+    height: auto;
   }
 
   .hero-section {
@@ -1600,19 +1740,29 @@ body {
 
   .community-text {
     padding-right: 0;
+    text-align: center;
+    align-items: center;
   }
 
   .community-text .section-title {
-    font-size: 2.5rem;
     text-align: center;
+  }
+
+  .community-description {
+    margin: 0 auto;
+  }
+
+  .community-tags {
+    justify-content: center;
   }
 
   .community-buttons {
     justify-content: center;
   }
 
-  .community-globe {
+  .community-visual {
     order: -1;
+    min-height: 420px;
   }
 
   .footer {
@@ -1639,7 +1789,7 @@ body {
   .feature-showcase-content {
     padding: var(--spacing-sm);
     border-radius: 12px;
-    min-height: 450px;
+    min-height: auto;
   }
 
   .feature-text {
@@ -1648,7 +1798,7 @@ body {
 
   .feature-showcase-terminal .showcase-container {
     padding: var(--spacing-sm);
-    height: 400px;
+    height: auto;
     border-radius: 4px;
   }
 
@@ -1701,13 +1851,23 @@ body {
   }
 }
 
+/* Hide floating community stickers so they don't overlap the globe on phones */
+@media (max-width: 600px) {
+  .community-sticker {
+    display: none;
+  }
+}
+
 @media (max-width: 480px) {
   .site-header {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding-top: max(var(--spacing-xs), env(safe-area-inset-top));
+    padding-bottom: var(--spacing-xs);
+    padding-left: max(var(--spacing-sm), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-sm), env(safe-area-inset-right));
   }
 
   .hero-showcase .showcase-container {
-    height: 280px;
+    height: auto;
     padding: var(--spacing-sm);
   }
 
@@ -1794,12 +1954,46 @@ body {
     font-size: 13px;
   }
 
+  /* Allow long install commands to wrap on tiny screens */
+  .install-method .code-block code {
+    overflow-wrap: anywhere;
+  }
+
   .install-section {
     padding: var(--spacing-lg) var(--spacing-sm);
   }
 
   .install-methods {
     max-width: 100%;
+  }
+
+  .community-visual {
+    min-height: 340px;
+  }
+
+  .community-sticker {
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .community-sticker-git {
+    top: 8%;
+    left: 2%;
+  }
+
+  .community-sticker-typescript {
+    top: 10%;
+    right: 2%;
+  }
+
+  .community-sticker-npm {
+    bottom: 12%;
+    left: 4%;
+  }
+
+  .community-sticker-brew {
+    right: 2%;
+    bottom: 10%;
   }
 }
 
@@ -2168,6 +2362,21 @@ body {
 }
 
 /* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ========================================
    PRINT STYLES
    ======================================== */
 
@@ -2231,7 +2440,7 @@ body {
   .copy-btn,
   .hero-copy-btn,
   .terminal-window,
-  .community-globe,
+  .community-visual,
   .hero-showcase,
   .footer-links,
   .footer-bottom,

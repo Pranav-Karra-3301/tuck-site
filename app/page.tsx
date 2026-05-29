@@ -28,8 +28,10 @@ export default function Home() {
             <h1 className="hero-title">tuck</h1>
             <p className="hero-subtitle">The modern dotfiles manager</p>
             <p className="hero-description">
-              Simple, fast, and built in TypeScript. Manage your dotfiles
-              with Git, sync across machines, and never lose your configs again.
+              Simple, fast, and built in TypeScript. Track any config file —
+              in your home directory or inside any git repo — sync across
+              machines, and never lose your configs again. Agent-native, too:
+              structured JSON output and a write-confined sandbox.
             </p>
             <HeroInstall />
           </div>
@@ -97,8 +99,8 @@ export default function Home() {
 
       <FeatureShowcase
         title="Apply dotfiles from anywhere"
-        description="Bootstrap a new machine in seconds. Just provide a GitHub username and tuck will clone their dotfiles, create Time Machine backup snapshots of your existing configs, and apply with smart merging that preserves your local customizations."
-        command="tuck apply username"
+        description="Bootstrap a new machine in seconds. Point tuck at a GitHub, GitLab, or custom user, any git URL, a local folder, or a tarball. tuck creates Time Machine backup snapshots of your existing configs and applies with smart merging that preserves your local customizations."
+        command="tuck apply <source>"
         reversed
         link={{ text: "Learn about apply", href: "#commands" }}
         painting={{
@@ -121,6 +123,35 @@ export default function Home() {
           artist: "Samuel Colman",
           year: "1865",
           metUrl: "https://www.metmuseum.org/art/collection/search/10508",
+        }}
+      />
+
+      <FeatureShowcase
+        title="Verify nothing drifted"
+        description="tuck verify compares your live files, the repo, and the manifest so you always know what's out of sync. Use --exit-code as a CI gate, --json for automation, and --fix to safely re-copy whatever drifted."
+        command="tuck verify"
+        reversed
+        link={{ text: "See all commands", href: "#commands" }}
+        painting={{
+          src: "/paintings/heart-of-the-andes.webp",
+          title: "Heart of the Andes",
+          artist: "Frederic Edwin Church",
+          year: "1859",
+          metUrl: "https://www.metmuseum.org/art/collection/search/10481",
+        }}
+      />
+
+      <FeatureShowcase
+        title="Track configs inside your repos"
+        description="Not just your home directory. Track .vscode/settings.json, CLAUDE.md, or .cursorrules that live inside a project, then sync them across machines with 'tuck repo link'. Track any config file, anywhere."
+        command="tuck add --repo ."
+        link={{ text: "Learn about repo tracking", href: "#commands" }}
+        painting={{
+          src: "/paintings/the-gulf-stream.webp",
+          title: "The Gulf Stream",
+          artist: "Winslow Homer",
+          year: "1899",
+          metUrl: "https://www.metmuseum.org/art/collection/search/11122",
         }}
       />
       </div>
@@ -150,7 +181,7 @@ export default function Home() {
               <div className="code-block">
                 <code>tuck init</code>
               </div>
-              <p className="step-note">Scans your dotfiles, select what to track, syncs to GitHub</p>
+              <p className="step-note">Scans your dotfiles, select what to track, syncs to your remote (GitHub, GitLab, or custom — or stay fully local)</p>
             </div>
           </div>
           <div className="install-step">
@@ -175,13 +206,13 @@ export default function Home() {
           commands={[
             {
               name: "tuck init",
-              description: "Set up tuck, scan for dotfiles, select what to track, and sync - all in one. Creates ~/.tuck directory with Git tracking.",
-              flags: ["--from <url>", "--bare", "-r, --remote"]
+              description: "Set up tuck, scan for dotfiles, select what to track, and sync - all in one. Works with GitHub, GitLab, custom, or local-only providers. Creates ~/.tuck directory with Git tracking.",
+              flags: ["--from <url>", "--provider <name>", "--bare", "-r, --remote", "--json"]
             },
             {
               name: "tuck sync",
               description: "Detect changes, find new files, and push to remote. Pulls first if behind, scans for new dotfiles, commits and pushes.",
-              flags: ["--no-commit", "--no-push", "--no-scan", "-m, --message"]
+              flags: ["--json", "--plan", "--dry-run", "--no-commit", "--no-push", "-m, --message"]
             },
             {
               name: "tuck status",
@@ -206,13 +237,13 @@ export default function Home() {
           commands={[
             {
               name: "tuck add <files>",
-              description: "Manually track specific files. Copies files to ~/.tuck organized by category (shell, git, editors, etc).",
-              flags: ["-c, --category", "--symlink", "-f, --force"]
+              description: "Manually track specific files. Copies files to ~/.tuck organized by category. Use --repo to track config files that live inside any git repo, not just $HOME.",
+              flags: ["--repo [dir]", "-c, --category", "--symlink", "--json", "--yes"]
             },
             {
               name: "tuck remove <files>",
               description: "Stop tracking dotfiles. Optionally delete from repository or keep original files intact.",
-              flags: ["--delete", "--keep-original"]
+              flags: ["--delete", "--json"]
             },
             {
               name: "tuck list",
@@ -235,14 +266,14 @@ export default function Home() {
           description="Apply dotfiles from others, restore your own, or undo changes. Everything you need to use your backups across machines."
           commands={[
             {
-              name: "tuck apply <user>",
-              description: "Apply dotfiles from any GitHub user's repository. Smart merging preserves your local customizations.",
-              flags: ["--merge", "--replace", "--dry-run"]
+              name: "tuck apply <source>",
+              description: "Apply dotfiles from anywhere: a GitHub, GitLab, or custom user or owner/repo, any git URL, a local directory, or a tarball. Smart merging preserves your local customizations.",
+              flags: ["--merge", "--replace", "--dry-run", "--json", "--repo-root"]
             },
             {
               name: "tuck restore",
               description: "Restore dotfiles from ~/.tuck to your system. Useful when setting up on a new machine.",
-              flags: ["--all", "--dry-run", "--symlink"]
+              flags: ["--all", "--json", "--plan", "--dry-run", "--symlink"]
             },
             {
               name: "tuck undo",
@@ -268,17 +299,17 @@ export default function Home() {
             {
               name: "tuck secrets",
               description: "Manage local secrets for placeholder replacement. Scan files and git history for exposed secrets.",
-              flags: ["list", "set <name>", "scan", "scan-history"]
+              flags: ["list", "set <name>", "scan", "scan-history", "--json"]
             },
             {
               name: "tuck config",
               description: "Customize tuck behavior - default branch, file strategy, hooks, and more.",
-              flags: ["get <key>", "set <key> <value>", "list", "edit"]
+              flags: ["get <key>", "set <key> <value>", "list", "edit", "--json"]
             },
             {
               name: "tuck diff",
               description: "Show differences between system files and repository. Useful before syncing.",
-              flags: ["--staged", "--stat", "--category"]
+              flags: ["--staged", "--stat", "--category", "--json"]
             }
           ]}
           painting={{
@@ -287,6 +318,36 @@ export default function Home() {
             artist: "Jasper Francis Cropsey",
             year: "1864",
             metUrl: "https://www.metmuseum.org/art/collection/search/10589"
+          }}
+        />
+
+        {/* Agent-Native Commands */}
+        <CommandShowcase
+          title="Agent-Native"
+          description="Drive tuck from AI agents and CI — structured JSON I/O, drift verification, a write-confined --root sandbox, and an MCP server. Every command supports --json, --yes, --plan, and --dry-run for safe, scriptable automation."
+          commands={[
+            {
+              name: "tuck verify",
+              description: "Detect drift between your live files, the repo, and the manifest. Gate CI on it or safely re-copy what changed.",
+              flags: ["--json", "--exit-code", "--fix"]
+            },
+            {
+              name: "tuck repo",
+              description: "Manage per-machine bindings for config files tracked inside your git repos, synced across machines.",
+              flags: ["link", "list", "unlink"]
+            },
+            {
+              name: "tuck mcp serve",
+              description: "Expose tuck as tools to AI agents over MCP. Pair with --root to confine every write to a sandbox.",
+              flags: ["tools"]
+            }
+          ]}
+          painting={{
+            src: "/paintings/the-gulf-stream.webp",
+            title: "The Gulf Stream",
+            artist: "Winslow Homer",
+            year: "1899",
+            metUrl: "https://www.metmuseum.org/art/collection/search/11122"
           }}
         />
       </div>
@@ -318,6 +379,11 @@ export default function Home() {
                 <span className="diagram-arrow">→</span>
                 <span className="diagram-link">~/.tuck/files/editors/nvim</span>
               </div>
+              <div className="diagram-item">
+                <span className="diagram-file">~/work/app/.vscode/settings.json</span>
+                <span className="diagram-arrow">→</span>
+                <span className="diagram-link">~/.tuck/files/repos/&lt;repo&gt;/.vscode/settings.json</span>
+              </div>
             </div>
             <p className="how-note">
               Run <code>tuck sync</code> to detect changes and push to remote.
@@ -334,7 +400,20 @@ export default function Home() {
       <section className="community-section">
         <div className="community-content">
           <div className="community-text">
+            <p className="community-kicker">Built on open source</p>
             <h2 className="section-title">Built with the open source community</h2>
+            <p className="community-description">
+              tuck stays small by leaning on tools developers already trust:
+              Git for history, TypeScript for clarity, and standard package
+              managers for distribution. The point is not to invent a new
+              workflow, just to make dotfiles easier to keep.
+            </p>
+            <div className="community-tags" aria-label="Open source foundations">
+              <span className="community-tag">Git-backed history</span>
+              <span className="community-tag">TypeScript CLI</span>
+              <span className="community-tag">npm + Homebrew installs</span>
+              <span className="community-tag">GitHub collaboration</span>
+            </div>
             <div className="community-buttons">
               <a
                 href="https://github.com/Pranav-Karra-3301/tuck"
@@ -354,8 +433,14 @@ export default function Home() {
               </a>
             </div>
           </div>
-          <div className="community-globe" aria-hidden="true">
-            <RotatingEarth width={500} height={500} />
+          <div className="community-visual" aria-hidden="true">
+            <span className="community-sticker community-sticker-git">git-backed</span>
+            <span className="community-sticker community-sticker-typescript">typescript</span>
+            <span className="community-sticker community-sticker-npm">npm</span>
+            <span className="community-sticker community-sticker-brew">homebrew</span>
+            <div className="community-globe">
+              <RotatingEarth className="community-cobe" />
+            </div>
           </div>
         </div>
       </section>

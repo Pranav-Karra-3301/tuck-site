@@ -1,344 +1,141 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import * as d3 from "d3"
-import { useTheme } from "./ThemeProvider"
-
-interface PolygonGeometry {
-  type: 'Polygon';
-  coordinates: number[][][];
-}
-
-interface MultiPolygonGeometry {
-  type: 'MultiPolygon';
-  coordinates: number[][][][];
-}
-
-type GeoJSONGeometry = PolygonGeometry | MultiPolygonGeometry;
-
-interface GeoJSONFeature {
-  type: 'Feature';
-  properties: Record<string, unknown> | null;
-  geometry: GeoJSONGeometry;
-}
-
-interface GeoJSONCollection {
-  type: 'FeatureCollection';
-  features: GeoJSONFeature[];
-}
+import createGlobe from "cobe";
+import { useEffect, useRef, useState } from "react";
+import { useTheme } from "./ThemeProvider";
 
 interface RotatingEarthProps {
-  width?: number
-  height?: number
-  className?: string
+  className?: string;
 }
 
-export default function RotatingEarth({ width = 800, height = 600, className = "" }: RotatingEarthProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { resolvedTheme } = useTheme()
-  const renderRef = useRef<(() => void) | null>(null)
-  const themeRef = useRef(resolvedTheme)
-  
-  // Keep theme ref in sync
-  useEffect(() => {
-    themeRef.current = resolvedTheme
-  }, [resolvedTheme])
+type Rgb = [number, number, number];
 
-  useEffect(() => {
-    if (!canvasRef.current) return
-
-    const canvas = canvasRef.current
-    const context = canvas.getContext("2d")
-    if (!context) return
-
-    // Set up responsive dimensions
-    const containerWidth = Math.min(width, window.innerWidth - 40)
-    const containerHeight = Math.min(height, window.innerHeight - 100)
-    const radius = Math.min(containerWidth, containerHeight) / 2.5
-
-    const dpr = window.devicePixelRatio || 1
-    canvas.width = containerWidth * dpr
-    canvas.height = containerHeight * dpr
-    canvas.style.width = `${containerWidth}px`
-    canvas.style.height = `${containerHeight}px`
-    context.scale(dpr, dpr)
-
-    // Create projection and path generator for Canvas
-    const projection = d3
-      .geoOrthographic()
-      .scale(radius)
-      .translate([containerWidth / 2, containerHeight / 2])
-      .clipAngle(90)
-
-    const path = d3.geoPath().projection(projection).context(context)
-
-    const pointInPolygon = (point: [number, number], polygon: number[][]): boolean => {
-      const [x, y] = point
-      let inside = false
-
-      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-        const [xi, yi] = polygon[i]
-        const [xj, yj] = polygon[j]
-
-        if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) {
-          inside = !inside
-        }
-      }
-
-      return inside
-    }
-
-    const pointInFeature = (point: [number, number], feature: GeoJSONFeature): boolean => {
-      const geometry = feature.geometry
-
-      if (geometry.type === "Polygon") {
-        const coordinates = geometry.coordinates
-        // Check if point is in outer ring
-        if (!pointInPolygon(point, coordinates[0])) {
-          return false
-        }
-        // Check if point is in any hole (inner rings)
-        for (let i = 1; i < coordinates.length; i++) {
-          if (pointInPolygon(point, coordinates[i])) {
-            return false // Point is in a hole
-          }
-        }
-        return true
-      } else if (geometry.type === "MultiPolygon") {
-        // Check each polygon in the MultiPolygon
-        for (const polygon of geometry.coordinates) {
-          // Check if point is in outer ring
-          if (pointInPolygon(point, polygon[0])) {
-            // Check if point is in any hole
-            let inHole = false
-            for (let i = 1; i < polygon.length; i++) {
-              if (pointInPolygon(point, polygon[i])) {
-                inHole = true
-                break
-              }
-            }
-            if (!inHole) {
-              return true
-            }
-          }
-        }
-        return false
-      }
-
-      return false
-    }
-
-    const generateDotsInPolygon = (feature: GeoJSONFeature, dotSpacing = 16): [number, number][] => {
-      const dots: [number, number][] = []
-      const bounds = d3.geoBounds(feature)
-      const [[minLng, minLat], [maxLng, maxLat]] = bounds
-
-      const stepSize = dotSpacing * 0.08
-      let pointsGenerated = 0
-
-      for (let lng = minLng; lng <= maxLng; lng += stepSize) {
-        for (let lat = minLat; lat <= maxLat; lat += stepSize) {
-          const point: [number, number] = [lng, lat]
-          if (pointInFeature(point, feature)) {
-            dots.push(point)
-            pointsGenerated++
-          }
-        }
-      }
-
-      return dots
-    }
-
-    interface DotData {
-      lng: number
-      lat: number
-      visible: boolean
-    }
-
-    const allDots: DotData[] = []
-    let landFeatures: GeoJSONCollection | null = null
-
-    const render = () => {
-      // Clear canvas
-      context.clearRect(0, 0, containerWidth, containerHeight)
-
-      const currentScale = projection.scale()
-      const scaleFactor = currentScale / radius
-
-      // Theme-aware colors - read from ref to get current theme
-      const isLight = themeRef.current === 'light'
-      const oceanColor = isLight ? "#F7F7F4" : "#000000"
-      const strokeColor = isLight ? "#1a1a1a" : "#ffffff"
-      const dotColor = isLight ? "#666666" : "#999999"
-      const circleStrokeColor = isLight ? "#ffffff" : "#000000"
-
-      // Draw ocean (globe background)
-      context.beginPath()
-      context.arc(containerWidth / 2, containerHeight / 2, currentScale, 0, 2 * Math.PI)
-      context.fillStyle = oceanColor
-      context.fill()
-      context.strokeStyle = circleStrokeColor
-      context.lineWidth = 2 * scaleFactor
-      context.stroke()
-
-      if (landFeatures) {
-        // Draw graticule
-        const graticule = d3.geoGraticule()
-        context.beginPath()
-        path(graticule())
-        context.strokeStyle = strokeColor
-        context.lineWidth = 1 * scaleFactor
-        context.globalAlpha = 0.25
-        context.stroke()
-        context.globalAlpha = 1
-
-        // Draw land outlines
-        context.beginPath()
-        landFeatures.features.forEach((feature: GeoJSONFeature) => {
-          path(feature as d3.GeoPermissibleObjects)
-        })
-        context.strokeStyle = strokeColor
-        context.lineWidth = 1 * scaleFactor
-        context.stroke()
-
-        // Draw halftone dots
-        allDots.forEach((dot) => {
-          const projected = projection([dot.lng, dot.lat])
-          if (
-            projected &&
-            projected[0] >= 0 &&
-            projected[0] <= containerWidth &&
-            projected[1] >= 0 &&
-            projected[1] <= containerHeight
-          ) {
-            context.beginPath()
-            context.arc(projected[0], projected[1], 1.2 * scaleFactor, 0, 2 * Math.PI)
-            context.fillStyle = dotColor
-            context.fill()
-          }
-        })
-      }
-    }
-
-    const loadWorldData = async () => {
-      try {
-        setIsLoading(true)
-
-        const response = await fetch(
-          "https://raw.githubusercontent.com/martynafford/natural-earth-geojson/refs/heads/master/110m/physical/ne_110m_land.json",
-        )
-        if (!response.ok) throw new Error("Failed to load land data")
-
-        landFeatures = await response.json() as GeoJSONCollection
-
-        // Generate dots for all land features
-        let totalDots = 0
-        landFeatures.features.forEach((feature: GeoJSONFeature) => {
-          const dots = generateDotsInPolygon(feature, 16)
-          dots.forEach(([lng, lat]) => {
-            allDots.push({ lng, lat, visible: true })
-            totalDots++
-          })
-        })
-
-        render()
-        renderRef.current = render
-        setIsLoading(false)
-      } catch (err) {
-        setError("Failed to load land map data")
-        setIsLoading(false)
-      }
-    }
-
-    // Set up rotation and interaction
-    const rotation: [number, number] = [0, -30]
-    let autoRotate = true
-    const rotationSpeed = 0.15
-
-    const rotate = () => {
-      if (autoRotate) {
-        rotation[0] += rotationSpeed
-        projection.rotate(rotation)
-        render()
-      }
-    }
-
-    // Auto-rotation timer
-    const rotationTimer = d3.timer(rotate)
-
-    const handleMouseDown = (event: MouseEvent) => {
-      autoRotate = false
-      const startX = event.clientX
-      const startY = event.clientY
-      const startRotation = [...rotation]
-
-      const handleMouseMove = (moveEvent: MouseEvent) => {
-        const sensitivity = 0.5
-        const dx = moveEvent.clientX - startX
-        const dy = moveEvent.clientY - startY
-
-        rotation[0] = startRotation[0] + dx * sensitivity
-        rotation[1] = startRotation[1] - dy * sensitivity
-        rotation[1] = Math.max(-90, Math.min(90, rotation[1]))
-
-        projection.rotate(rotation)
-        render()
-      }
-
-      const handleMouseUp = () => {
-        document.removeEventListener("mousemove", handleMouseMove)
-        document.removeEventListener("mouseup", handleMouseUp)
-
-        setTimeout(() => {
-          autoRotate = true
-        }, 10)
-      }
-
-      document.addEventListener("mousemove", handleMouseMove)
-      document.addEventListener("mouseup", handleMouseUp)
-    }
-
-    canvas.addEventListener("mousedown", handleMouseDown)
-
-    // Load the world data
-    loadWorldData()
-
-    // Cleanup
-    return () => {
-      rotationTimer.stop()
-      canvas.removeEventListener("mousedown", handleMouseDown)
-      renderRef.current = null
-    }
-  }, [width, height])
-
-  // Re-render when theme changes
-  useEffect(() => {
-    if (renderRef.current) {
-      renderRef.current()
-    }
-  }, [resolvedTheme])
-
-  if (error) {
-    return (
-      <div className={`dark flex items-center justify-center bg-card rounded-2xl p-8 ${className}`}>
-        <div className="text-center">
-          <p className="dark text-destructive font-semibold mb-2">Error loading Earth visualization</p>
-          <p className="dark text-muted-foreground text-sm">{error}</p>
-        </div>
-      </div>
-    )
+function getPalette(theme: "light" | "dark") {
+  if (theme === "light") {
+    return {
+      baseColor: [0.9, 0.88, 0.84] as Rgb,
+      glowColor: [1, 1, 1] as Rgb,
+      markerColor: [1, 0.42, 0.21] as Rgb,
+      dark: 0.05,
+      diffuse: 1.35,
+      mapBrightness: 5,
+      mapBaseBrightness: 0.12,
+    };
   }
 
-  return (
-    <div className={`relative ${className}`} role="img" aria-label="Interactive rotating globe visualization">
-      <canvas
-        ref={canvasRef}
-        className="w-full h-auto rounded-2xl bg-background dark"
-        style={{ maxWidth: "100%", height: "auto" }}
-      />
-    </div>
-  )
+  return {
+    baseColor: [0.16, 0.16, 0.16] as Rgb,
+    glowColor: [0.07, 0.07, 0.07] as Rgb,
+    markerColor: [1, 0.42, 0.21] as Rgb,
+    dark: 1,
+    diffuse: 1.1,
+    mapBrightness: 4.3,
+    mapBaseBrightness: 0.04,
+  };
 }
 
+export default function RotatingEarth({ className = "" }: RotatingEarthProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [canvasSize, setCanvasSize] = useState(520);
+  const { resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const syncSize = (width: number) => {
+      if (!width) return;
+
+      const nextSize = Math.round(Math.min(Math.max(width, 260), 560));
+      setCanvasSize((current) => (Math.abs(current - nextSize) < 4 ? current : nextSize));
+    };
+
+    syncSize(container.getBoundingClientRect().width);
+
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) {
+        syncSize(entry.contentRect.width);
+      }
+    });
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    const palette = getPalette(resolvedTheme);
+
+    let phi = 0.65;
+    let pointerX = 0;
+    let pointerY = 0;
+
+    const globe = createGlobe(canvas, {
+      width: canvasSize,
+      height: canvasSize,
+      devicePixelRatio,
+      phi,
+      theta: 0.22,
+      dark: palette.dark,
+      diffuse: palette.diffuse,
+      scale: 0.98,
+      opacity: 1,
+      mapSamples: 18000,
+      mapBrightness: palette.mapBrightness,
+      mapBaseBrightness: palette.mapBaseBrightness,
+      baseColor: palette.baseColor,
+      markerColor: palette.markerColor,
+      glowColor: palette.glowColor,
+      offset: [0, 0],
+    });
+
+    let animationFrame = 0;
+
+    const render = () => {
+      if (!reduceMotion) {
+        phi += 0.0024;
+      }
+
+      globe.update({
+        phi: phi + pointerX * 0.12,
+        theta: 0.22 + pointerY * 0.08,
+      });
+
+      animationFrame = window.requestAnimationFrame(render);
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      pointerX = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+      pointerY = ((event.clientY - rect.top) / rect.height - 0.5) * -2;
+    };
+
+    const handlePointerLeave = () => {
+      pointerX = 0;
+      pointerY = 0;
+    };
+
+    canvas.addEventListener("pointermove", handlePointerMove);
+    canvas.addEventListener("pointerleave", handlePointerLeave);
+    render();
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+      canvas.removeEventListener("pointermove", handlePointerMove);
+      canvas.removeEventListener("pointerleave", handlePointerLeave);
+      globe.destroy();
+    };
+  }, [canvasSize, resolvedTheme]);
+
+  return (
+    <div ref={containerRef} className={`rotating-earth ${className}`.trim()}>
+      <canvas ref={canvasRef} className="rotating-earth-canvas" />
+    </div>
+  );
+}
