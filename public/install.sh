@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # tuck installer script
-# Usage: curl -fsSL https://raw.githubusercontent.com/Pranav-Karra-3301/tuck/main/install.sh | bash
+# Usage: curl -fsSL https://tuck.sh/install.sh | bash
 
 set -euo pipefail
 

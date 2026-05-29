@@ -26,15 +26,15 @@ export default function Footer({ isSubPage = false }: FooterProps) {
           </div>
           <div className="footer-column">
             <h4>Resources</h4>
-            <a href="https://github.com/Pranav-Karra-3301/tuck">GitHub</a>
-            <a href="https://github.com/Pranav-Karra-3301/tuck/issues">Issues</a>
-            <a href="https://github.com/Pranav-Karra-3301/tuck#readme">Docs</a>
+            <a href="https://github.com/Pranav-Karra-3301/tuck" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://github.com/Pranav-Karra-3301/tuck/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+            <a href="https://github.com/Pranav-Karra-3301/tuck/tree/main/docs" target="_blank" rel="noopener noreferrer">Docs</a>
             <a href="/llm.txt">llm.txt</a>
           </div>
           <div className="footer-column">
             <h4>Connect</h4>
-            <a href="https://twitter.com/pranavkarra">Twitter</a>
-            <a href="https://github.com/Pranav-Karra-3301">GitHub</a>
+            <a href="https://x.com/pranavkarra" target="_blank" rel="noopener noreferrer">Twitter</a>
+            <a href="https://github.com/Pranav-Karra-3301" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
           <div className="footer-column">
             <h4>Legal</h4>
@@ -50,13 +50,13 @@ export default function Footer({ isSubPage = false }: FooterProps) {
             Made with love in{" "}
             <span className="location-name">San Francisco</span>
             <span className="location-map-container">
-              <img src="/sf.png" alt="San Francisco" className="location-map" />
+              <img src="/sf.png" alt="San Francisco" className="location-map" width={50} height={50} loading="lazy" />
               <span className="location-pin"></span>
             </span>
             {" "}and{" "}
             <span className="location-name">State College</span>
             <span className="location-map-container">
-              <img src="/sc.png" alt="State College" className="location-map" />
+              <img src="/sc.png" alt="State College" className="location-map" width={50} height={50} loading="lazy" />
               <span className="location-pin"></span>
             </span>
           </p>

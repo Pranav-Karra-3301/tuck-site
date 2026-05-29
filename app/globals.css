@@ -21,7 +21,8 @@
   --bg-surface: #242424;
   --text-primary: #ffffff;
   --text-secondary: #a0a0a0;
-  --text-muted: #666666;
+  --text-muted: #9a9a9a;
+  --text-tertiary: #9a9a9a;
   --accent: #ff6b35;
   --accent-hover: #ff8555;
   --success: #4ade80;
@@ -49,7 +50,8 @@
   --bg-surface: #e8e7e4;
   --text-primary: #1a1a1a;
   --text-secondary: #5a5a5a;
-  --text-muted: #8a8a8a;
+  --text-muted: #6b6b6b;
+  --text-tertiary: #6b6b6b;
   --accent: #ff6b35;
   --accent-hover: #ff8555;
   --success: #2d8659;
@@ -183,7 +185,10 @@ body {
   left: 0;
   right: 0;
   z-index: 100;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding-top: max(var(--spacing-md), env(safe-area-inset-top));
+  padding-bottom: var(--spacing-md);
+  padding-left: max(var(--spacing-lg), env(safe-area-inset-left));
+  padding-right: max(var(--spacing-lg), env(safe-area-inset-right));
   pointer-events: none;
 }
 
@@ -844,9 +849,15 @@ body {
 
 .code-block code {
   flex: 1;
+  min-width: 0;
   font-family: var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
   font-size: 15px;
   color: var(--text-primary);
+}
+
+/* Keep copy button from shrinking so code can scroll */
+.code-block .copy-btn {
+  flex-shrink: 0;
 }
 
 .copy-btn {
@@ -1508,7 +1519,6 @@ body {
   font-size: 14px;
   color: var(--text-muted);
   text-align: right;
-  white-space: nowrap;
   margin: 0;
 }
 
@@ -1628,17 +1638,59 @@ body {
 
 @media (max-width: 768px) {
   .site-header {
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding-top: max(var(--spacing-sm), env(safe-area-inset-top));
+    padding-bottom: var(--spacing-sm);
+    padding-left: max(var(--spacing-md), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-md), env(safe-area-inset-right));
   }
 
+  /* Keep touch target >= 44px (do not shrink below) */
   .github-link {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 
   .github-link svg {
     width: 20px;
     height: 20px;
+  }
+
+  /* Touch targets >= 44px */
+  .theme-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .theme-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .hero-copy-btn,
+  .copy-btn {
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Hero terminal fits small screens (Terminal.tsx drops inline width on mobile) */
+  .hero-showcase .terminal-window:not(.static) {
+    width: 100% !important;
+    max-width: 560px;
+    height: auto;
+  }
+
+  .hero-showcase .showcase-container {
+    height: auto;
+  }
+
+  /* Avoid big empty panels on mobile */
+  .feature-showcase-content {
+    min-height: auto;
+  }
+
+  .feature-showcase-terminal .showcase-container {
+    height: auto;
   }
 
   .hero-section {
@@ -1737,7 +1789,7 @@ body {
   .feature-showcase-content {
     padding: var(--spacing-sm);
     border-radius: 12px;
-    min-height: 450px;
+    min-height: auto;
   }
 
   .feature-text {
@@ -1746,7 +1798,7 @@ body {
 
   .feature-showcase-terminal .showcase-container {
     padding: var(--spacing-sm);
-    height: 400px;
+    height: auto;
     border-radius: 4px;
   }
 
@@ -1799,13 +1851,23 @@ body {
   }
 }
 
+/* Hide floating community stickers so they don't overlap the globe on phones */
+@media (max-width: 600px) {
+  .community-sticker {
+    display: none;
+  }
+}
+
 @media (max-width: 480px) {
   .site-header {
-    padding: var(--spacing-xs) var(--spacing-sm);
+    padding-top: max(var(--spacing-xs), env(safe-area-inset-top));
+    padding-bottom: var(--spacing-xs);
+    padding-left: max(var(--spacing-sm), env(safe-area-inset-left));
+    padding-right: max(var(--spacing-sm), env(safe-area-inset-right));
   }
 
   .hero-showcase .showcase-container {
-    height: 280px;
+    height: auto;
     padding: var(--spacing-sm);
   }
 
@@ -1890,6 +1952,11 @@ body {
 
   .code-block code {
     font-size: 13px;
+  }
+
+  /* Allow long install commands to wrap on tiny screens */
+  .install-method .code-block code {
+    overflow-wrap: anywhere;
   }
 
   .install-section {
@@ -2291,6 +2358,21 @@ body {
   .comparison-table th,
   .comparison-table td {
     padding: 8px 10px;
+  }
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
