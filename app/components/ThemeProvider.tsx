@@ -12,10 +12,19 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+// Read the persisted preference up front so we never call setState during the
+// initial effect (which would trigger an extra render and a lint error).
+function getStoredTheme(): Theme {
+  if (typeof window === 'undefined') return 'system';
+  const stored = localStorage.getItem('theme-preference') as Theme | null;
+  return stored ?? 'system';
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('system');
+  // Lazily read the persisted preference so the first render already reflects
+  // the stored choice without an extra setState-in-effect pass.
+  const [theme, setThemeState] = useState<Theme>(getStoredTheme);
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('dark');
-  const [mounted, setMounted] = useState(false);
 
   // Get system preference
   const getSystemTheme = (): 'light' | 'dark' => {
@@ -25,19 +34,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return 'dark';
   };
 
-  // Initialize theme on mount
-  useEffect(() => {
-    setMounted(true);
-    const stored = localStorage.getItem('theme-preference') as Theme | null;
-    if (stored) {
-      setThemeState(stored);
-    }
-  }, []);
-
   // Update resolved theme when theme or system preference changes
   useEffect(() => {
-    if (!mounted) return;
-
     const updateResolvedTheme = () => {
       const newResolvedTheme = theme === 'system' ? getSystemTheme() : theme;
       setResolvedTheme(newResolvedTheme);
@@ -56,7 +54,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme, mounted]);
+  }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);

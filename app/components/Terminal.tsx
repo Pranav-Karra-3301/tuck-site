@@ -93,14 +93,14 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'spinner', content: '◐  Pushing to origin/main...' },
     { type: 'success', content: '✓  Pushed 2 commits' },
     { type: 'empty', content: '' },
-    { type: 'output', content: 'Your dotfiles are synced to GitHub!' },
+    { type: 'output', content: 'Your dotfiles are synced to your remote!' },
     { type: 'empty', content: '' },
     { type: 'dim', content: 'On a new machine:' },
     { type: 'cyan', content: '  tuck apply your-username' },
   ],
   'help': [
     { type: 'box-start', content: '' },
-    { type: 'box-line', content: 'tuck v1.5.0' },
+    { type: 'box-line', content: 'tuck v1.7.0' },
     { type: 'box-end', content: '' },
     { type: 'empty', content: '' },
     { type: 'bold', content: 'Quick Start:' },
@@ -110,7 +110,7 @@ const DEMO_RESPONSES: Record<string, OutputLine[]> = {
     { type: 'output', content: '  tuck push        Push to remote' },
     { type: 'empty', content: '' },
     { type: 'bold', content: 'New Machine:' },
-    { type: 'output', content: '  tuck apply <user>  Apply from GitHub' },
+    { type: 'output', content: '  tuck apply <user>  Apply from anywhere' },
   ],
   'tuck add ~/.zshrc ~/.gitconfig': [
     { type: 'cyan', content: '◆  tuck add' },
@@ -192,7 +192,11 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   const [isTyping, setIsTyping] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [size, setSize] = useState({ width: 520, height: 380 });
+  // Clamp the initial size so the terminal never exceeds the viewport.
+  const [size, setSize] = useState(() => ({
+    width: Math.min(520, typeof window !== 'undefined' ? window.innerWidth - 64 : 520),
+    height: 380,
+  }));
   const [isMobile, setIsMobile] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -234,6 +238,38 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
     }
   }, [input]);
 
+  const executeCommand = useCallback(async (cmd: string) => {
+    setIsTyping(true);
+    setLines(prev => [...prev, { type: 'input', content: cmd }]);
+
+    const response = DEMO_RESPONSES[cmd.toLowerCase()] || [
+      { type: 'error', content: `Command not found: ${cmd}` },
+      { type: 'dim', content: 'Type "help" for available commands' },
+    ];
+
+    for (let i = 0; i < response.length; i++) {
+      const line = response[i];
+      const isSpinner = line.type === 'spinner';
+      const delay = isSpinner ? 400 : 40;
+
+      if (isSpinner) {
+        // Append the spinner and mark it active using the index from the
+        // updater's `prev` length so we never read a stale `lines` snapshot.
+        setLines(prev => {
+          setActiveSpinnerIdx(prev.length);
+          return [...prev, line];
+        });
+        await new Promise(r => setTimeout(r, delay));
+        setActiveSpinnerIdx(null);
+      } else {
+        await new Promise(r => setTimeout(r, delay));
+        setLines(prev => [...prev, line]);
+      }
+    }
+
+    setIsTyping(false);
+  }, []);
+
   useEffect(() => {
     if (!playOnScroll || hasPlayed || autoPlay) return;
 
@@ -254,22 +290,25 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
     }
 
     return () => observer.disconnect();
-  }, [playOnScroll, hasPlayed, command, autoPlay]);
+  }, [playOnScroll, hasPlayed, command, autoPlay, executeCommand]);
 
+  // One-time autoplay trigger guarded by a ref (not state) so we never call
+  // setState synchronously in the effect body (which causes cascading renders).
+  const autoPlayStartedRef = useRef(false);
   useEffect(() => {
-    if (autoPlay && !hasPlayed) {
-      setHasPlayed(true);
-      const runDemo = async () => {
-        await new Promise(r => setTimeout(r, 1500));
-        await executeCommand('tuck init');
-        await new Promise(r => setTimeout(r, 2000));
-        await executeCommand('tuck add ~/.zshrc');
-        await new Promise(r => setTimeout(r, 1500));
-        await executeCommand('tuck status');
-      };
-      runDemo();
-    }
-  }, [autoPlay, hasPlayed]);
+    if (!autoPlay || autoPlayStartedRef.current) return;
+    autoPlayStartedRef.current = true;
+    const runDemo = async () => {
+      await new Promise(r => setTimeout(r, 1500));
+      setHasPlayed(true); // after an await — no longer synchronous in the effect
+      await executeCommand('tuck init');
+      await new Promise(r => setTimeout(r, 2000));
+      await executeCommand('tuck add ~/.zshrc');
+      await new Promise(r => setTimeout(r, 1500));
+      await executeCommand('tuck status');
+    };
+    runDemo();
+  }, [autoPlay, executeCommand]);
 
   useEffect(() => {
     if (command && !autoPlay && !playOnScroll) {
@@ -279,7 +318,7 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
       };
       runCommand();
     }
-  }, [command, autoPlay, playOnScroll]);
+  }, [command, autoPlay, playOnScroll, executeCommand]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (isStatic || isMobile) return;
@@ -346,35 +385,6 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
       };
     }
   }, [isDragging, isResizing, dragStart, size]);
-
-  const executeCommand = async (cmd: string) => {
-    setIsTyping(true);
-    setLines(prev => [...prev, { type: 'input', content: cmd }]);
-
-    const response = DEMO_RESPONSES[cmd.toLowerCase()] || [
-      { type: 'error', content: `Command not found: ${cmd}` },
-      { type: 'dim', content: 'Type "help" for available commands' },
-    ];
-
-    for (let i = 0; i < response.length; i++) {
-      const line = response[i];
-      const isSpinner = line.type === 'spinner';
-      const delay = isSpinner ? 400 : 40;
-
-      if (isSpinner) {
-        const currentIdx = lines.length + i + 1;
-        setActiveSpinnerIdx(currentIdx);
-        setLines(prev => [...prev, line]);
-        await new Promise(r => setTimeout(r, delay));
-        setActiveSpinnerIdx(null);
-      } else {
-        await new Promise(r => setTimeout(r, delay));
-        setLines(prev => [...prev, line]);
-      }
-    }
-
-    setIsTyping(false);
-  };
 
   const handleCommand = async (cmd: string) => {
     if (cmd.toLowerCase() === 'clear') {
@@ -479,7 +489,7 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
     <div
       ref={windowRef}
       className={`terminal-window ${isDragging ? 'dragging' : ''} ${isStatic ? 'static' : ''}`}
-      style={isStatic ? {} : {
+      style={(isStatic || isMobile) ? {} : {
         width: size.width,
         height: size.height,
         transform: `translate(${position.x}px, ${position.y}px)`,
@@ -509,7 +519,8 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={isTyping}
+            disabled={isTyping || autoPlay}
+            tabIndex={autoPlay ? -1 : undefined}
             spellCheck={false}
             autoComplete="off"
             placeholder={isTyping ? '' : 'try: tuck init'}

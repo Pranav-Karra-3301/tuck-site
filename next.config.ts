@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the workspace root so Turbopack doesn't get confused by lockfiles
+  // higher up the tree (silences the multiple-lockfiles warning).
+  turbopack: {
+    root: __dirname,
+  },
   async redirects() {
     return [
       {

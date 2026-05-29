@@ -4,7 +4,7 @@
 
 ## Overview
 
-tuck is a modern, TypeScript-based dotfiles manager with a beautiful CLI. It helps developers manage, sync, and share their configuration files across machines using Git.
+tuck is a modern, TypeScript-based dotfiles manager with a beautiful CLI. It helps developers track, sync, and share any config file — in the home directory or inside any git repo — across machines using Git. It is agent-native: every command supports structured JSON output, and a write-confined `--root` sandbox lets AI agents apply and restore without touching the real home directory.
 
 Website: https://tuck.sh
 GitHub: https://github.com/Pranav-Karra-3301/tuck
@@ -31,7 +31,8 @@ Initialize tuck and set up dotfile tracking.
 - Creates ~/.tuck directory with Git tracking
 - Scans system for existing dotfiles
 - Interactive selection of files to track
-- Flags: `--from <url>`, `--bare`, `-r, --remote`
+- Works with GitHub, GitLab, custom, or local-only providers (not GitHub-only)
+- Flags: `--from <url>`, `--provider <name>`, `--bare`, `-r, --remote`, `--json`
 
 ### tuck sync
 The all-in-one sync command.
@@ -40,7 +41,7 @@ The all-in-one sync command.
 - Interactive selection for new files
 - Pulls from remote if behind
 - Commits and pushes changes
-- Flags: `--no-commit`, `--no-push`, `--no-scan`, `-m, --message`
+- Flags: `--json`, `--plan`, `--dry-run`, `--no-commit`, `--no-push`, `-m, --message`
 
 ### tuck status
 Show current tracking status.
@@ -55,13 +56,14 @@ Show current tracking status.
 Manually track specific files.
 - Copies files to ~/.tuck
 - Auto-categorizes (shell, git, editors, terminal, ssh, misc)
-- Flags: `-c, --category`, `--symlink`, `-f, --force`
+- Use `--repo [dir]` to track config files that live INSIDE any git repo, not just $HOME (e.g. .vscode/settings.json, CLAUDE.md, .cursorrules). These are stored under ~/.tuck/files/repos/<repo>/ and synced across machines.
+- Flags: `--repo [dir]`, `-c, --category`, `--symlink`, `--json`, `--yes`
 
 ### tuck remove <files>
 Stop tracking dotfiles.
 - Optionally delete from repository
 - Keep original files intact
-- Flags: `--delete`, `--keep-original`
+- Flags: `--delete`, `--json`
 
 ### tuck list
 List all tracked files.
@@ -71,18 +73,18 @@ List all tracked files.
 
 ## Restore Commands
 
-### tuck apply <username>
-Apply dotfiles from any GitHub user.
-- Clones user's dotfiles repository
+### tuck apply <source>
+Apply dotfiles from anywhere (provider-neutral, not GitHub-only).
+- Accepts a GitHub, GitLab, or custom user or `owner/repo`, ANY git URL, a LOCAL directory, or a TARBALL
 - Creates Time Machine backup snapshots
 - Smart merging preserves local customizations
-- Flags: `--merge`, `--replace`, `--dry-run`
+- Flags: `--merge`, `--replace`, `--dry-run`, `--json`, `--repo-root`
 
 ### tuck restore
 Restore dotfiles from ~/.tuck to system.
 - Useful for new machine setup
 - Creates symlinks or copies
-- Flags: `--all`, `--dry-run`, `--symlink`
+- Flags: `--all`, `--json`, `--plan`, `--dry-run`, `--symlink`
 
 ### tuck undo
 Restore from Time Machine backups.
@@ -109,7 +111,40 @@ Customize tuck behavior.
 Show differences between system files and repository.
 - Useful before syncing to review changes
 - Filter by category or show stats only
-- Flags: `--staged`, `--stat`, `--category`
+- Flags: `--staged`, `--stat`, `--category`, `--json`
+
+## Agent-Native Commands
+
+tuck is built to be driven by AI agents and CI. Every command supports structured `--json` output, `--yes` for non-interactive runs, and `--plan`/`--dry-run` to preview changes. Errors are returned as structured envelopes.
+
+### tuck verify
+Drift detector. Compares your live files, the repo, and the manifest so you always know what is out of sync.
+- `--json` for machine-readable output
+- `--exit-code` makes it a CI gate (non-zero exit on drift)
+- `--fix` safely re-copies whatever drifted
+- Flags: `--json`, `--exit-code`, `--fix`
+
+### tuck repo
+Manage per-machine bindings for config files tracked inside your git repos.
+- `link` binds a repo on this machine so its tracked files restore to the right place
+- `list` shows current repo bindings
+- `unlink` removes a binding
+- Subcommands: `link`, `list`, `unlink`
+
+### tuck mcp serve
+Run an MCP (Model Context Protocol) server that exposes tuck as tools to AI agents.
+- Lets agents track, sync, verify, apply, and restore via MCP
+- Pair with the `--root` sandbox to confine every write to a directory
+- Flags: `tools`
+
+## Sandboxing (--root)
+
+The global `--root <dir>` flag (or the `TUCK_TARGET_ROOT` environment variable) confines ALL writes to the given directory. An AI agent can run `tuck apply`/`tuck restore` against a sandbox without ever touching the real home directory.
+
+```bash
+tuck apply owner/dotfiles --root /tmp/sandbox --json
+TUCK_TARGET_ROOT=/tmp/sandbox tuck restore --all --json
+```
 
 ## How It Works
 
@@ -123,6 +158,7 @@ tuck stores dotfiles in `~/.tuck`, organized by category:
 │   ├── editors/    # .vimrc, nvim config, .emacs
 │   ├── terminal/   # .tmux.conf, alacritty, kitty
 │   ├── ssh/        # ssh config (not keys)
+│   ├── repos/      # configs tracked inside git repos (.vscode, CLAUDE.md, ...)
 │   └── misc/       # everything else
 ├── .tuckmanifest.json  # Tracks all managed files
 ├── .tuckrc.json        # Configuration
@@ -174,6 +210,8 @@ File strategies:
 - **copy** (default): Files copied to repo, changes require `tuck sync`
 - **symlink**: System files replaced with symlinks, changes immediate
 
+Encryption is supported: tuck can encrypt whole files (set `encryption.enabled` to `true` with a `gpgKey`), and it integrates with password managers (1Password, Bitwarden, `pass`) for retrieving secret values. It is enabled per-config and disabled by default.
+
 ## Common Workflows
 
 ### New User Setup
@@ -192,14 +230,35 @@ tuck diff                    # Review changes before syncing
 
 ### New Machine Setup
 ```bash
-tuck init --from github.com/username/dotfiles
+tuck init --from github.com/username/dotfiles   # or GitLab/custom/any git URL
+tuck repo link                                  # bind any repo-scoped configs
 tuck restore --all
 ```
 
-### Apply Someone Else's Dotfiles
+### Apply Dotfiles From Anywhere
 ```bash
-tuck apply username          # Apply from GitHub user
-tuck undo --latest           # Revert if needed
+tuck apply username                      # GitHub/GitLab/custom user
+tuck apply owner/dotfiles                # owner/repo
+tuck apply https://example.com/df.git    # any git URL
+tuck apply ./my-dotfiles                 # a local directory
+tuck apply ./dotfiles.tar.gz             # a tarball
+tuck undo --latest                       # Revert if needed
+```
+
+### Track Configs Inside a Repo
+```bash
+cd ~/work/app
+tuck add --repo .vscode/settings.json    # track a file inside this repo
+tuck repo link                           # bind this repo on a new machine
+tuck repo list                           # show repo bindings
+```
+
+### Agent / CI Automation
+```bash
+tuck verify --exit-code --json           # CI gate: fail on drift
+tuck verify --fix --json                 # re-copy whatever drifted
+tuck apply owner/dotfiles --root /tmp/sandbox --json   # write-confined sandbox
+tuck mcp serve                           # expose tuck as tools over MCP
 ```
 
 ### Managing Secrets
@@ -211,12 +270,18 @@ tuck secrets scan-history    # Check git history for leaks
 
 ## Key Features
 
+- **Track any config, anywhere**: Files in $HOME AND config files inside any git repo (`tuck add --repo`)
+- **Agent-native**: Full `--json`/`--yes`/`--plan`/`--dry-run` parity with structured errors — operable by AI agents and CI
+- **Drift detection**: `tuck verify` compares live files vs repo vs manifest; `--exit-code` gates CI, `--fix` re-copies
+- **Write sandbox**: Global `--root <dir>` / `TUCK_TARGET_ROOT` confines ALL writes so agents never touch the real home
+- **MCP server**: `tuck mcp serve` exposes tuck as tools to AI agents
+- **Provider-neutral**: GitHub, GitLab, custom, or local-only; apply from a user, any git URL, a local folder, or a tarball
 - **Beautiful CLI**: Gorgeous prompts, spinners, and colors via @clack/prompts
 - **Git-native**: Uses git under the hood, abstracts complexity
 - **Auto-categorization**: Smart detection of dotfile types
 - **Safe**: Never overwrites without confirmation, automatic backups
 - **Time Machine Integration**: Automatic snapshots before applying changes
-- **Secret Management**: Placeholder replacement, leak detection
+- **Secret Management**: Placeholder replacement, leak detection, whole-file encryption, password-manager integration (1Password, Bitwarden, pass)
 - **Cross-platform**: Works on macOS and Linux
 - **Fast**: Written in TypeScript, runs on Node.js 18+
 
