@@ -32,7 +32,7 @@ Initialize tuck and set up dotfile tracking.
 - Scans system for existing dotfiles
 - Interactive selection of files to track
 - Works with GitHub, GitLab, custom, or local-only providers (not GitHub-only)
-- Flags: `--from <url>`, `--provider <name>`, `--bare`, `-r, --remote`, `--json`
+- Flags: `--from <url>`, `--bare`, `-r, --remote <url>`, `-y, --yes`, `--json` (provider is chosen interactively during setup)
 
 ### tuck sync
 The all-in-one sync command.

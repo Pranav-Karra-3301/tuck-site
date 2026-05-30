@@ -1673,15 +1673,20 @@ body {
     min-height: 44px;
   }
 
-  /* Hero terminal fits small screens (Terminal.tsx drops inline width on mobile) */
+  /* Hero terminal fits small screens (Terminal.tsx drops the inline width/height
+     on mobile). Keep a FIXED height so the demo animation scrolls inside the box
+     instead of growing the terminal — and so the painting background behind it
+     never reflows as lines are typed. */
   .hero-showcase .terminal-window:not(.static) {
     width: 100% !important;
     max-width: 560px;
-    height: auto;
+    height: 360px;
+    flex-shrink: 0;
   }
 
   .hero-showcase .showcase-container {
-    height: auto;
+    height: 440px;
+    padding: var(--spacing-md);
   }
 
   /* Avoid big empty panels on mobile */
@@ -1866,8 +1871,12 @@ body {
     padding-right: max(var(--spacing-sm), env(safe-area-inset-right));
   }
 
+  .hero-showcase .terminal-window:not(.static) {
+    height: 320px;
+  }
+
   .hero-showcase .showcase-container {
-    height: auto;
+    height: 380px;
     padding: var(--spacing-sm);
   }
 
