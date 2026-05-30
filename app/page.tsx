@@ -207,7 +207,7 @@ export default function Home() {
             {
               name: "tuck init",
               description: "Set up tuck, scan for dotfiles, select what to track, and sync - all in one. Works with GitHub, GitLab, custom, or local-only providers. Creates ~/.tuck directory with Git tracking.",
-              flags: ["--from <url>", "--provider <name>", "--bare", "-r, --remote", "--json"]
+              flags: ["--from <url>", "--bare", "-r, --remote <url>", "-y, --yes", "--json"]
             },
             {
               name: "tuck sync",
