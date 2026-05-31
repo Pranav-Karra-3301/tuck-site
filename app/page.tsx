@@ -460,8 +460,8 @@ export default function Home() {
           <div className="install-method">
             <span className="install-label">brew</span>
             <div className="code-block">
-              <code>brew install prnv/tap/tuck</code>
-              <CopyButton text="brew install prnv/tap/tuck" />
+              <code>brew install Pranav-Karra-3301/tuck/tuck</code>
+              <CopyButton text="brew install Pranav-Karra-3301/tuck/tuck" />
             </div>
           </div>
           <div className="install-method">
