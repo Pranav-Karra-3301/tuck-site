@@ -1,15 +1,29 @@
 'use client';
 
+import { useSyncExternalStore } from 'react';
 import { useTheme } from './ThemeProvider';
+
+// Returns false during SSR and the first client (hydration) render, then true.
+const noopSubscribe = () => () => {};
+function useHydrated() {
+  return useSyncExternalStore(noopSubscribe, () => true, () => false);
+}
 
 export default function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  // The persisted preference is only known on the client. To keep the first
+  // client render identical to the server render (which always sees 'system'),
+  // defer reflecting the real active theme until after hydration. Prevents a
+  // hydration attribute mismatch for returning visitors with a stored theme,
+  // without a setState-in-effect (forbidden by the lint config).
+  const hydrated = useHydrated();
+  const active = hydrated ? theme : 'system';
 
   return (
     <div className="theme-toggle">
       <button
         onClick={() => setTheme('system')}
-        className={`theme-btn ${theme === 'system' ? 'active' : ''}`}
+        className={`theme-btn ${active === 'system' ? 'active' : ''}`}
         aria-label="System theme"
         title="System"
       >
@@ -21,7 +35,7 @@ export default function ThemeToggle() {
       </button>
       <button
         onClick={() => setTheme('light')}
-        className={`theme-btn ${theme === 'light' ? 'active' : ''}`}
+        className={`theme-btn ${active === 'light' ? 'active' : ''}`}
         aria-label="Light theme"
         title="Light"
       >
@@ -39,7 +53,7 @@ export default function ThemeToggle() {
       </button>
       <button
         onClick={() => setTheme('dark')}
-        className={`theme-btn ${theme === 'dark' ? 'active' : ''}`}
+        className={`theme-btn ${active === 'dark' ? 'active' : ''}`}
         aria-label="Dark theme"
         title="Dark"
       >

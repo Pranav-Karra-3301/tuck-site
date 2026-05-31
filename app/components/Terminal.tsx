@@ -192,11 +192,10 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   const [isTyping, setIsTyping] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  // Clamp the initial size so the terminal never exceeds the viewport.
-  const [size, setSize] = useState(() => ({
-    width: Math.min(520, typeof window !== 'undefined' ? window.innerWidth - 64 : 520),
-    height: 380,
-  }));
+  // Start from a stable size so the server render and the first client render
+  // agree (reading window.innerWidth here would mismatch on hydration). The
+  // width is clamped to the viewport in a mount effect below.
+  const [size, setSize] = useState({ width: 520, height: 380 });
   const [isMobile, setIsMobile] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -210,15 +209,18 @@ export default function Terminal({ autoPlay = false, command, static: isStatic =
   const hiddenSpanRef = useRef<HTMLSpanElement>(null);
   const promptRef = useRef<HTMLSpanElement>(null);
 
-  // Detect mobile to disable drag/resize
+  // Detect mobile to disable drag/resize, and clamp the terminal width to the
+  // viewport. Done in an effect (post-hydration) so the first client render
+  // matches the server and we never read window during render.
   useEffect(() => {
-    const checkMobile = () => {
+    const onResize = () => {
       setIsMobile(window.innerWidth <= 768);
+      setSize((prev) => ({ ...prev, width: Math.min(520, window.innerWidth - 64) }));
     };
 
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    onResize();
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   useEffect(() => {
