@@ -86,6 +86,45 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "https://pranavkarra.me/#person",
+      name: "Pranav Karra",
+      url: "https://pranavkarra.me",
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://tuck.sh/#website",
+      url: "https://tuck.sh",
+      name: "tuck",
+      description:
+        "Simple, fast, and built in TypeScript. Manage your dotfiles with Git, sync across machines, and never lose your configs again.",
+      publisher: { "@id": "https://pranavkarra.me/#person" },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://tuck.sh/#software",
+      name: "tuck",
+      description:
+        "A modern, TypeScript-based dotfiles manager with a beautiful CLI. Track, sync, and share any config file across machines using Git, with agent-native structured JSON output and a write-confined sandbox.",
+      url: "https://tuck.sh",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "macOS, Linux",
+      softwareRequirements: "Node.js",
+      author: { "@id": "https://pranavkarra.me/#person" },
+      creator: { "@id": "https://pranavkarra.me/#person" },
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -94,6 +133,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
